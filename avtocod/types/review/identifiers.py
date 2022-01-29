@@ -15,3 +15,6 @@ class Vehicle(AvtocodObject):
 class Identifiers(AvtocodObject):
     vehicle: Optional[Vehicle] = None
     _comment: Optional[str] = None
+
+
+__all__ = ["Vehicle", "Identifiers"]

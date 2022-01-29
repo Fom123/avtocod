@@ -63,7 +63,7 @@ class MutableAvtocodObject(AvtocodObject):
 
 UNSET: Any = (
     sentinel.UNSET
-)  # special sentinel object which used in sutuation when None might be a useful value
+)  # special sentinel object which used in situation when None might be a useful value
 
 
 class DateUpdate(AvtocodObject):

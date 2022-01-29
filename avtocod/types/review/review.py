@@ -242,7 +242,7 @@ class Application(AvtocodObject):
     version: Optional[str] = None
 
 
-class _Metadata(AvtocodObject):
+class Metadata(AvtocodObject):
     _comment: Optional[str] = None
     application: Optional[Application] = None
 
@@ -256,7 +256,7 @@ class Accidents(AvtocodObject):
 class ContentData(AvtocodObject):
     pledges: Optional[Pledges] = None
     mileages: Optional[Mileages] = None
-    _metadata: Optional[_Metadata] = None
+    _metadata: Optional[Metadata] = None
     accidents: Optional[Accidents] = None
     calculate: Optional[Calculate] = None
     car_price: Optional[CountItems] = None
@@ -372,3 +372,6 @@ class Review(AvtocodObject):
             ],
         )  # filter all our variables before passing it
         return ShortInformation(**payload)  # unpack all the filtered variables
+
+
+__all__ = ["Review"]

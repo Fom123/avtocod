@@ -22,3 +22,6 @@ class ShortInformation(BaseModel):
     @validator("gos_number", "vin")
     def upper(cls, v: str):
         return v.upper()
+
+
+__all__ = ["ShortInformation"]

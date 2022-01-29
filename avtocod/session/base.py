@@ -24,8 +24,8 @@ _JsonLoads = Callable[..., Any]
 _JsonDumps = Callable[..., str]
 
 DEFAULT_TIMEOUT: Final[float] = 30.0
-AVTOCOD_API = "https://api-profi.avtocod.ru/rpc"
-HEADERS = {
+AVTOCOD_API: str = "https://api-profi.avtocod.ru/rpc"
+HEADERS: Dict[str, str] = {
     "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.106 Safari/537.36",
     "Accept": "application/json",
     "Content-Type": "application/json",
@@ -58,15 +58,14 @@ class BaseSession(abc.ABC):
     ) -> AvtocodType:
         return await self._make_request(self.api, method, timeout=timeout)
 
-    @staticmethod
     def check_response(
-        method: AvtocodMethod[AvtocodType], content_type: str, content: str
+        self, method: AvtocodMethod[AvtocodType], content_type: str, content: str
     ) -> Response[AvtocodMethod]:
         if content_type != "application/json":
             raise NetworkError(f'Invalid response with content type {content_type}: "{content}"')
 
         try:
-            json_data = json.loads(content)
+            json_data = self.json_loads(content)
         except ValueError:
             json_data = {}
 
