@@ -18,7 +18,7 @@
 
 ### Требования
 
-- Python 3.7 или выше.
+- Python 3.8 или выше.
 - [Аккаунт Автокода](https://profi.avtocod.ru/auth).
 
 
