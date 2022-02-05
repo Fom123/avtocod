@@ -10,3 +10,6 @@ class ReviewGeneration(AvtocodObject):
 class ReviewUpgrade(AvtocodObject):
     channel: str
     max_wait_to_ready_time: int
+
+
+__all__ = ["ReviewGeneration", "ReviewUpgrade"]

@@ -120,3 +120,6 @@ class TechData(BaseModel):
     transmission: Optional[Transmission] = None
 
     _comment: Optional[str] = None
+
+
+__all__ = ["TechData"]
