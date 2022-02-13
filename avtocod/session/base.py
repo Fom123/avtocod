@@ -32,6 +32,8 @@ HEADERS: Dict[str, str] = {
 }
 
 
+# source:
+# https://github.com/aiogram/aiogram/blob/c7058584219a2138bab44b7760604bf62783aaf5/aiogram/client/session/base.py#L63
 class BaseSession(abc.ABC):
     def __init__(
         self,

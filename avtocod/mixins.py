@@ -39,12 +39,9 @@ class ContextInstanceMixin(Generic[ContextInstance]):
         super().__init_subclass__()
         cls.__context_instance = contextvars.ContextVar(f"instance_{cls.__name__}")
 
-    @classmethod  # noqa: F811
-    def get_current(  # noqa: F811
-        cls, no_error: bool = True
-    ) -> Optional[ContextInstance]:  # pragma: no cover  # noqa: F811
+    @classmethod
+    def get_current(cls, no_error: bool = True) -> Optional[ContextInstance]:
         """Get current instance from context"""
-        # on mypy 0.770 I catch that contextvars.ContextVar always contextvars.ContextVar[Any]
         cls.__context_instance = cast(
             contextvars.ContextVar[ContextInstance], cls.__context_instance
         )
@@ -62,7 +59,7 @@ class ContextInstanceMixin(Generic[ContextInstance]):
     @classmethod
     def set_current(cls, value: ContextInstance) -> contextvars.Token[ContextInstance]:
         if not isinstance(value, cls):
-            raise TypeError(  # pragma: no cover
+            raise TypeError(
                 f"Value should be instance of {cls.__name__!r} not {type(value).__name__!r}"
             )
         return cls.__context_instance.set(value)
