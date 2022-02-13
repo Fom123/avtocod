@@ -1,8 +1,27 @@
 [tool.poetry]
 name = "avtocod"
-version = "0.1.0"
-description = ""
+version = "0.1.2"
+description = "Avtocod - неофициальный, элегантный, асинхронный враппер автокода"
+license = "MIT"
+readme = "README.md"
+keywords = ["avtocod", "api"]
+repository = "https://github.com/Fom123/avtocod"
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Environment :: Console",
+    "Framework :: AsyncIO",
+    "Typing :: Typed",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+]
+maintainers = [
+    "Fom123 <gamemode1.459@gmail.com>",
+]
 authors = ["Fom123 <gamemode1.459@gmail.com>"]
+
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.10"

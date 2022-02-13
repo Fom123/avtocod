@@ -23,13 +23,15 @@ async def main():
     # but then you can use only get_report method and login method.
 
     report = await avtocod.get_report(REPORT_ID)
-    print(f"""Short information about the report with ID - {REPORT_ID}:
+    print(
+        f"""Short information about the report with ID - {REPORT_ID}:
 Title: {report.information.title}
 Vin number: {report.information.vin},
 Gos number: {report.information.gos_number},
 Time: {report.information.car_time},
 Link: {report.information.link},
-Photo: {report.information.photo}""")
+Photo: {report.information.photo}"""
+    )
 
     await avtocod.session.close()  # closing the session, so we won't have errors
 

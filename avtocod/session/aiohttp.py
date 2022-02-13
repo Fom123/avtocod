@@ -1,3 +1,6 @@
+# source:
+# https://github.com/aiogram/aiogram/blob/c7058584219a2138bab44b7760604bf62783aaf5/aiogram/client/session/aiohttp.py
+
 from __future__ import annotations
 
 import asyncio
