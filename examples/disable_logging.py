@@ -3,8 +3,6 @@ import logging
 
 from avtocod import AvtoCod
 
-EMAIL = "YOUR_EMAIL"
-PASSWORD = "YOUR_PASSWORD"
 REPORT_ID = "2245ff3c-70b6-41ba-986b-c43a6633a335"
 
 
