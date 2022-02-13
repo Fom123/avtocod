@@ -197,7 +197,7 @@ class DateHistory(AvtocodObject):
 
 class OwnerHistory(AvtocodObject):
     type: Optional[str] = None
-    company: Optional[List] = None
+    company: Optional[Any] = None
 
 
 class LastOperation(AvtocodObject):
