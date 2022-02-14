@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import contextvars
 from typing import Any, ClassVar, Dict, Generic, Optional, TypeVar, cast
 
