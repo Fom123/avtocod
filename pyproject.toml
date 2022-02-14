@@ -27,7 +27,6 @@ authors = ["Fom123 <gamemode1.459@gmail.com>"]
 python = ">=3.8,<3.10"
 pydantic = "~=1.8.2"
 aiohttp = "^3.8.1"
-contextvars = "^2.4"
 
 [tool.poetry.dev-dependencies]
 ipython = "^7.22.0"
