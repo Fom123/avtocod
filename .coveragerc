@@ -1,0 +1,17 @@
+[pytest]
+
+[report]
+exclude_lines =
+    pragma: no cover
+    @abstractmethod
+    @abc.abstractmethod
+    type: ignore
+    raise NotImplementedError
+    def __repr__
+    def __str__
+    class .*\bProtocol\):
+    pass
+omit =
+    */site-packages/*
+    */tests/*
+    */.eggs/*
