@@ -11,13 +11,13 @@ from avtocod.utils import filter_payload, rgetattr
 class Query(AvtocodObject):
     body: Optional[str] = None
     type: Optional[str] = None
-    storages: Optional[List] = None
+    storages: Optional[List[Any]] = None
     schema_version: Optional[str] = None
 
 
 class CountItems(AvtocodObject):
     count: Optional[int] = None
-    items: Optional[List] = None
+    items: Optional[List[Any]] = None
     _comment: Optional[str] = None
 
 
@@ -45,7 +45,7 @@ class Utilizations(CountItems):
 
 
 class GotsAuctions(AvtocodObject):
-    items: Optional[List] = None
+    items: Optional[List[Any]] = None
     _comment: Optional[str] = None
 
 
@@ -61,7 +61,7 @@ class OwnerInfo(AvtocodObject):
 
 
 class Segment(AvtocodObject):
-    euro: Optional[List] = None
+    euro: Optional[List[Any]] = None
 
 
 class Category(AvtocodObject):
@@ -99,7 +99,7 @@ class VehicleInfo(AvtocodObject):
 
 
 class IdentifiersInfo(AvtocodObject):
-    vin: Optional[List] = None
+    vin: Optional[List[Any]] = None
 
 
 class AdditionalInfo(AvtocodObject):
@@ -134,29 +134,29 @@ class State(AvtocodObject):
 class Photos(AvtocodObject):
     date: Optional[DateUpdate] = None
     count: Optional[int] = None
-    items: Optional[List] = None
+    items: Optional[List[Any]] = None
     _comment: Optional[str] = None
 
 
 class Pledges(AvtocodObject):
     date: Optional[DateUpdate] = None
     count: Optional[int] = None
-    items: Optional[List] = None
+    items: Optional[List[Any]] = None
     _comment: Optional[str] = None
 
 
 class Regions(AvtocodObject):
-    yearly: Optional[List] = None
+    yearly: Optional[List[Any]] = None
 
 
 class Current(AvtocodObject):
-    city: Optional[List] = None
-    region: Optional[List] = None
-    yearly: Optional[List] = None
+    city: Optional[List[Any]] = None
+    region: Optional[List[Any]] = None
+    yearly: Optional[List[Any]] = None
 
 
 class MoscowRegion(AvtocodObject):
-    yearly: Optional[List] = None
+    yearly: Optional[List[Any]] = None
 
 
 class Tax(AvtocodObject):
@@ -265,7 +265,7 @@ class ContentData(AvtocodObject):
     tech_data: Optional[TechData] = None
     identifiers: Optional[Identifiers] = None
     arbitration: Optional[CountItems] = None
-    report_meta: Optional[List] = None
+    report_meta: Optional[List[Any]] = None
     pledges_nbki: Optional[CountItems] = None
     utilizations: Optional[Utilizations] = None
     gots_auctions: Optional[GotsAuctions] = None
@@ -313,7 +313,7 @@ class Review(AvtocodObject):
 
     is_ready: bool
     is_completed: bool
-    tags_ids: List
+    tags_ids: List[Any]
     stage: str
     auto_index: int
     analytical_mileage: int
@@ -323,7 +323,7 @@ class Review(AvtocodObject):
 
     guarantee_status: str
     generation_start_time: datetime
-    additional_blocks: List
+    additional_blocks: List[Any]
     created_at: datetime
     updated_at: datetime
 
@@ -335,7 +335,7 @@ class Review(AvtocodObject):
         :return: ShortInformation object with None attributes if not found
         """
 
-        def filter_args(*args):
+        def filter_args(*args: Any) -> str:
             return ".".join(args)
 
         content = ["content", "content"]

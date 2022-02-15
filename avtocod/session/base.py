@@ -2,11 +2,10 @@ import abc
 import datetime
 import json
 from types import TracebackType
-from typing import Any, Callable, Dict, Final, Optional, Type, Union, cast
+from typing import Any, Callable, Dict, Final, Optional, Type, Union
 
 from avtocod.methods.base import AvtocodMethod, AvtocodType, Response
 from avtocod.types.base import UNSET, utcformat
-
 from ..exceptions import (
     AccountBanned,
     AvtocodException,
@@ -41,7 +40,7 @@ class BaseSession(abc.ABC):
         json_loads: _JsonLoads = json.loads,
         json_dumps: _JsonDumps = json.dumps,
         timeout: float = DEFAULT_TIMEOUT,
-        headers: Dict[str, Any] = None,
+        headers: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
         :param api: Avtocod API URL
@@ -62,7 +61,7 @@ class BaseSession(abc.ABC):
 
     def check_response(
         self, method: AvtocodMethod[AvtocodType], content_type: str, content: str
-    ) -> Response[AvtocodMethod]:
+    ) -> Response[AvtocodType]:
         if content_type != "application/json":
             raise NetworkError(f'Invalid response with content type {content_type}: "{content}"')
 
@@ -74,7 +73,7 @@ class BaseSession(abc.ABC):
         parsed_data = method.build_response(json_data)
 
         if not (error := parsed_data.error):
-            return cast(Response[AvtocodMethod], parsed_data)
+            return parsed_data
         if error.code == -32603:
             if data := error.data:
                 if data.code == 0:  # if we did not authorize
@@ -120,7 +119,7 @@ class BaseSession(abc.ABC):
             -32602 - Invalid Argument
         """
 
-    def prepare_value(self, value: Any) -> Union[str, int, bool]:
+    def prepare_value(self, value: Any) -> Union[str, int, bool, Any]:
         """
         Prepare value before send
         """

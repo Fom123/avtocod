@@ -8,19 +8,19 @@ EMAIL = "YOUR_EMAIL"
 PASSWORD = "YOUR_PASSWORD"
 
 
-async def main():
+async def main() -> None:
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
     )  # setup logging
     avtocod = await AvtoCod.from_credentials(EMAIL, PASSWORD)  # create instance of avtocod class
 
-    report = await avtocod.create_report(
+    created_report = await avtocod.create_report(
         "KNAFU611BA5295980", query_type=QueryNumber.VIN  # or just "VIN"
     )  # creating the report
 
     while True:
-        report = await avtocod.get_report(report.uuid)  # getting report until it's ready
+        report = await avtocod.get_report(created_report.uuid)  # getting report until it's ready
         if (
             report.is_ready or report.is_completed
         ):  # checking if report is ready or completed, if yes, exit the cycle

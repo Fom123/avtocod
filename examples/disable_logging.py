@@ -6,7 +6,7 @@ from avtocod import AvtoCod
 REPORT_ID = "2245ff3c-70b6-41ba-986b-c43a6633a335"
 
 
-async def main():
+async def main() -> None:
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
