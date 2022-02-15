@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 from typing import Any, Final, List, Optional, Tuple
 
@@ -71,21 +73,21 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
         return await self.session(method, timeout=request_timeout)
 
     @property
-    def token(self):
+    def token(self) -> Optional[str]:
         return self._token
 
     @token.setter
-    def token(self, token: str):
+    def token(self, token: str) -> None:
         self._token = token
         self.validate_token()
         self._update_auth_headers()
 
     @token.deleter
-    def token(self):
+    def token(self) -> None:
         self._token = None
         self._update_auth_headers()
 
-    def _update_auth_headers(self):
+    def _update_auth_headers(self) -> None:
         self.session.headers["Authorization"] = f"Bearer {self._token}"
 
     def validate_token(self) -> bool:
@@ -98,7 +100,7 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
             raise ValidationError("Token is invalid! It can't contains spaces.")
         return True
 
-    def pipeline(self, transaction: bool = True, shard_hint: Optional[str] = None):  # TODO
+    def pipeline(self, transaction: bool = True, shard_hint: Optional[str] = None) -> None:  # TODO
         """
         Return a new pipeline object that can queue multiple commands for
         later execution. ``transaction`` indicates whether all commands
@@ -108,8 +110,13 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
 
     @classmethod
     async def from_credentials(
-        cls, email: str, password: str, request_timeout: Optional[int] = None, *args, **kwargs
-    ) -> "AvtoCod":
+        cls,
+        email: str,
+        password: str,
+        request_timeout: Optional[int] = None,
+        *args: Any,
+        **kwargs: Any,
+    ) -> AvtoCod:
         avtocod = cls(*args, **kwargs)
 
         login_data = await avtocod.login(email, password, request_timeout=request_timeout)
@@ -117,7 +124,7 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
         return cls(login_data.token, *args, **kwargs)
 
     @classmethod
-    async def from_token(cls, token: str, *args, **kwargs) -> "AvtoCod":
+    async def from_token(cls, token: str, *args: Any, **kwargs: Any) -> AvtoCod:
         """
         Same as `AvtoCod(token)`
         """
@@ -174,10 +181,10 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
 
     async def get_reports_list(
         self,
-        pagination: Pagination = None,
-        sort: Sort = None,
-        filters: Filters = None,
-        request_timeout: int = None,
+        pagination: Optional[Pagination] = None,
+        sort: Optional[Sort] = None,
+        filters: Optional[Filters] = None,
+        request_timeout: Optional[int] = None,
     ) -> List[ReviewsList]:
         """
         Get the list of reports, if pagination weren't set,

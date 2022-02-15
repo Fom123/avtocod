@@ -13,7 +13,7 @@ class CreateReport(AvtocodMethod[ReviewGeneration]):
     type: str
 
     @validator("type")
-    def type_check(cls, v):
+    def type_check(cls, v: str) -> str:
         v = v.upper()
         if v not in ["VIN", "GRZ", "BODY"]:
             raise TypeError("Incorrect type!")

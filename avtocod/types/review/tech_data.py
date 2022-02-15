@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from pydantic import BaseModel
 
@@ -19,7 +19,7 @@ class ModelEngine(BaseModel):
 
 
 class Standarts(BaseModel):
-    emission: Optional[List] = None
+    emission: Optional[List[Any]] = None
 
 
 class Chassis(BaseModel):
@@ -115,8 +115,8 @@ class TechData(BaseModel):
     date: Optional[DateUpdate] = None
 
     chassis: Optional[Chassis] = None
-    generations: Optional[List] = None
-    manufacturer: Optional[List] = None
+    generations: Optional[List[Any]] = None
+    manufacturer: Optional[List[Any]] = None
     transmission: Optional[Transmission] = None
 
     _comment: Optional[str] = None

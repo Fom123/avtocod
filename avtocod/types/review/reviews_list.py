@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 
 from pydantic import Field, validator
 
@@ -29,7 +29,7 @@ class Sort(AvtocodObject):
     order: str
 
     @validator("order")
-    def order_validator(cls, v: str):
+    def order_validator(cls, v: str) -> str:
         if v not in ["desc", "asc"]:
             raise ValueError
         return v
@@ -63,8 +63,8 @@ class ReviewsList(AvtocodObject):
 
     stage: str
     auto_index: int
-    tags_ids: List
-    additional_blocks: List
+    tags_ids: List[Any]
+    additional_blocks: List[Any]
     is_ready: bool
     is_completed: bool
 

@@ -12,7 +12,7 @@ new_issue = "https://github.com/Fom123/avtocod"
 logger = logging.getLogger(__name__)
 
 
-def utcformat(dt: datetime, timespec="seconds"):
+def utcformat(dt: datetime, timespec: str = "seconds") -> str:
     """convert datetime to string in UTC format (YYYY-mm-ddTHH:MM:SS.mmmZ)"""
     return dt.astimezone(timezone.utc).isoformat("T", timespec)
 
