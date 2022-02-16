@@ -59,7 +59,7 @@ from avtocod import AvtoCod
 from avtocod.session.aiohttp import AiohttpSession
 
 async def main():
-    avtocod = AvtoCod.from_credentials(
+    avtocod = await AvtoCod.from_credentials(
         email="myuser@example.com",
         password="mypassword",
         session=AiohttpSession(
