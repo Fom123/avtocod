@@ -90,4 +90,4 @@ class ReviewList(AvtocodObject):
     reports_list: List[ReviewsList]
 
 
-__all__ = ["ReviewList", "BaseStatus", "Query", "Pagination", "Sort", "Filters"]
+__all__ = ["ReviewList", "BaseStatus", "Query", "Pagination", "Sort", "Filters", "ReviewsList"]
