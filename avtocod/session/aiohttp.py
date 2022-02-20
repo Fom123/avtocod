@@ -45,14 +45,14 @@ def _retrieve_basic(basic: _ProxyBasic) -> Dict[str, Any]:
 
 
 def _prepare_connector(
-    chain_or_plain: _ProxyType,
+        chain_or_plain: _ProxyType,
 ) -> Tuple[Type[TCPConnector], Dict[str, Any]]:
     from aiohttp_socks import ChainProxyConnector, ProxyConnector, ProxyInfo  # type: ignore
 
     # since tuple is Iterable(compatible with _ProxyChain) object, we assume that
     # user wants chained proxies if tuple is a pair of string(url) and BasicAuth
     if isinstance(chain_or_plain, str) or (
-        isinstance(chain_or_plain, tuple) and len(chain_or_plain) == 2
+            isinstance(chain_or_plain, tuple) and len(chain_or_plain) == 2
     ):
         chain_or_plain = cast(_ProxyBasic, chain_or_plain)
         return ProxyConnector, _retrieve_basic(chain_or_plain)
@@ -120,25 +120,23 @@ class AiohttpSession(BaseSession):
         return data
 
     async def _make_request(
-        self,
-        url: str,
-        method: AvtocodMethod[AvtocodType],
-        timeout: Optional[int] = None,
+            self,
+            url: str,
+            method: AvtocodMethod[AvtocodType],
+            timeout: Optional[int] = None,
     ) -> Tuple[Union[AvtocodType, List[AvtocodType]], List[Tuple[int, AvtocodException]]]:
         session = await self.create_session()
 
-        requests = method.build_request()
-        if isinstance(method, MultiRequest):
-            data = [self._build_raw_data(request.dict()) for request in requests]  # type: ignore
-        else:
-            data = self._build_raw_data(requests.dict())  # type: ignore
+        requests = self.wrap_multirequest(method, method.build_request())
+
+        data = [self._build_raw_data(request.dict()) for request in requests]
 
         try:
             async with session.post(
-                url,
-                headers=self.headers,
-                data=self.json_dumps(data),
-                timeout=self.timeout if timeout is None else timeout,
+                    url,
+                    headers=self.headers,
+                    data=self.json_dumps(self.unwrap_multirequest(method, data)),
+                    timeout=self.timeout if timeout is None else timeout,
             ) as response:
                 raw_response = await response.text()
                 parsed_data, errors = self.check_response(

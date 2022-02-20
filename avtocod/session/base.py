@@ -53,10 +53,10 @@ class BaseSession(abc.ABC):
     @staticmethod
     def wrap_multirequest(
         method: Union[AvtocodMethod[AvtocodType], List[AvtocodMethod[AvtocodType]]],
-        data: Dict[str, Any],
-    ) -> List[Dict[str, Any]]:
+        data: Any,
+    ) -> Any:
         if isinstance(method, MultiRequest):
-            return cast(List[Dict[str, Any]], data)
+            return data
         return [data]
 
     @staticmethod

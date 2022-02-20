@@ -151,7 +151,7 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
         **kwargs: Any,
     ) -> AvtoCod:
         avtocod = cls(*args, **kwargs)
-
+        
         login_data = await avtocod.login(email, password, request_timeout=request_timeout)
 
         return cls(login_data.token, *args, **kwargs)
