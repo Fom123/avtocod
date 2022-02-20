@@ -1,7 +1,7 @@
 from typing import Any, Dict, List, Optional, Union, cast
 
-from avtocod.methods.base import AvtocodMethod, Request, AvtocodType
-from avtocod.types.review.reviews_list import Filters, Pagination, ReviewsList, Sort, ReviewList
+from avtocod.methods.base import AvtocodMethod, AvtocodType, Request
+from avtocod.types.review.reviews_list import Filters, Pagination, ReviewList, ReviewsList, Sort
 
 
 class GetReviewsList(AvtocodMethod[List[ReviewsList]]):
@@ -14,8 +14,7 @@ class GetReviewsList(AvtocodMethod[List[ReviewsList]]):
     def build_request(self) -> Request:
         data: Dict[str, Any] = self.dict()
         return Request(method="reports.list", params=data)
-    
+
     @classmethod
     def on_response_parse(cls, response: AvtocodType) -> Union[Any, AvtocodType]:
         return cast(List[ReviewsList], response.reports_list)
-        

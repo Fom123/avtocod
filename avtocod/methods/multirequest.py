@@ -1,4 +1,4 @@
-from typing import Any, List, Dict, cast
+from typing import Any, Dict, List, cast
 
 from avtocod.methods.base import AvtocodMethod, AvtocodType
 
