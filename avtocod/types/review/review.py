@@ -99,7 +99,7 @@ class VehicleInfo(AvtocodObject):
 
 
 class IdentifiersInfo(AvtocodObject):
-    vin: Optional[List[Any]] = None
+    vin: Optional[Any] = None
 
 
 class AdditionalInfo(AvtocodObject):
@@ -146,17 +146,17 @@ class Pledges(AvtocodObject):
 
 
 class Regions(AvtocodObject):
-    yearly: Optional[List[Any]] = None
+    yearly: Optional[Any] = None
 
 
 class Current(AvtocodObject):
     city: Optional[List[Any]] = None
     region: Optional[List[Any]] = None
-    yearly: Optional[List[Any]] = None
+    yearly: Optional[Any] = None
 
 
 class MoscowRegion(AvtocodObject):
-    yearly: Optional[List[Any]] = None
+    yearly: Optional[Any] = None
 
 
 class Tax(AvtocodObject):

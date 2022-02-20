@@ -8,8 +8,9 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple, Type, Union, cast
 
 from aiohttp import BasicAuth, ClientError, ClientSession, TCPConnector
 
-from avtocod.exceptions import NetworkError
+from avtocod.exceptions import AvtocodException, NetworkError
 from avtocod.methods.base import AvtocodMethod, AvtocodType
+from avtocod.methods.multirequest import MultiRequest
 from avtocod.session.base import BaseSession
 from avtocod.types.base import UNSET
 
@@ -110,32 +111,40 @@ class AiohttpSession(BaseSession):
         if self._session is not None and not self._session.closed:
             await self._session.close()
 
-    def build_data(self, request: Dict[str, Any]) -> str:
+    def _build_raw_data(self, request: Dict[str, Any]) -> Dict[str, Any]:
         data = {}
         for key, value in request.items():
             if value is None or value is UNSET:
                 continue
             data[key] = self.prepare_value(value)
-        return self.json_dumps(data)
+        return data
 
     async def _make_request(
         self,
         url: str,
         method: AvtocodMethod[AvtocodType],
         timeout: Optional[int] = None,
-    ) -> AvtocodType:
+    ) -> Tuple[Union[AvtocodType, List[AvtocodType]], List[Tuple[int, AvtocodException]]]:
         session = await self.create_session()
-        data = self.build_data(method.build_request().dict())
+
+        requests = method.build_request()
+        if isinstance(method, MultiRequest):
+            data = [self._build_raw_data(request.dict()) for request in requests]  # type: ignore
+        else:
+            data = self._build_raw_data(requests.dict())  # type: ignore
+
         try:
             async with session.post(
                 url,
                 headers=self.headers,
-                data=data,
+                data=self.json_dumps(data),
                 timeout=self.timeout if timeout is None else timeout,
             ) as response:
                 raw_response = await response.text()
-                parsed_data = self.check_response(method, response.content_type, raw_response)
-                return cast(AvtocodType, parsed_data.result)
+                parsed_data, errors = self.check_response(
+                    method, response.content_type, raw_response
+                )
+                return parsed_data, errors
         except asyncio.TimeoutError:
             raise NetworkError("Request timeout error")
         except ClientError as e:

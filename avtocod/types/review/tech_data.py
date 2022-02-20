@@ -116,7 +116,7 @@ class TechData(BaseModel):
 
     chassis: Optional[Chassis] = None
     generations: Optional[List[Any]] = None
-    manufacturer: Optional[List[Any]] = None
+    manufacturer: Optional[Any] = None
     transmission: Optional[Transmission] = None
 
     _comment: Optional[str] = None

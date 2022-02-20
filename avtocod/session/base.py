@@ -2,27 +2,18 @@ import abc
 import datetime
 import json
 from types import TracebackType
-from typing import Any, Callable, Dict, Final, Optional, Type, Union
+from typing import Any, Callable, Dict, Final, List, Optional, Tuple, Type, Union, cast
 
-from avtocod.methods.base import AvtocodMethod, AvtocodType, Response
+from avtocod.methods.base import AvtocodMethod, AvtocodType
 from avtocod.types.base import UNSET, utcformat
-from ..exceptions import (
-    AccountBanned,
-    AvtocodException,
-    CouldNotFindCar,
-    InvalidRequest,
-    NetworkError,
-    NotEnoughRepairBalance,
-    ReportNotFound,
-    SessionExpired,
-    SubscriptionNotFound,
-    Unauthorized,
-)
+
+from ..exceptions import AvtocodException, NetworkError
+from ..methods.multirequest import MultiRequest
 
 _JsonLoads = Callable[..., Any]
 _JsonDumps = Callable[..., str]
 
-DEFAULT_TIMEOUT: Final[float] = 30.0
+DEFAULT_TIMEOUT: Final[int] = 30
 AVTOCOD_API: str = "https://api-profi.avtocod.ru/rpc"
 HEADERS: Dict[str, str] = {
     "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.106 Safari/537.36",
@@ -39,7 +30,7 @@ class BaseSession(abc.ABC):
         api: str = AVTOCOD_API,
         json_loads: _JsonLoads = json.loads,
         json_dumps: _JsonDumps = json.dumps,
-        timeout: float = DEFAULT_TIMEOUT,
+        timeout: int = DEFAULT_TIMEOUT,
         headers: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
@@ -56,12 +47,27 @@ class BaseSession(abc.ABC):
 
     async def __call__(
         self, method: AvtocodMethod[AvtocodType], timeout: Optional[int] = UNSET
-    ) -> AvtocodType:
+    ) -> Tuple[Union[List[AvtocodType], AvtocodType], List[Tuple[int, AvtocodException]]]:
         return await self._make_request(self.api, method, timeout=timeout)
+
+    @staticmethod
+    def wrap_multirequest(
+        method: Union[AvtocodMethod[AvtocodType], List[AvtocodMethod[AvtocodType]]],
+        data: Dict[str, Any],
+    ) -> List[Dict[str, Any]]:
+        if isinstance(method, MultiRequest):
+            return cast(List[Dict[str, Any]], data)
+        return [data]
+
+    @staticmethod
+    def unwrap_multirequest(method: AvtocodMethod[AvtocodType], data: List[Any]) -> Any:
+        if isinstance(method, MultiRequest):
+            return data
+        return data[0]
 
     def check_response(
         self, method: AvtocodMethod[AvtocodType], content_type: str, content: str
-    ) -> Response[AvtocodType]:
+    ) -> Tuple[Union[List[AvtocodType], AvtocodType], List[Tuple[int, AvtocodException]]]:
         if content_type != "application/json":
             raise NetworkError(f'Invalid response with content type {content_type}: "{content}"')
 
@@ -70,30 +76,25 @@ class BaseSession(abc.ABC):
         except ValueError:
             json_data = {}
 
-        parsed_data = method.build_response(json_data)
+        parsed_responses: List[Optional[AvtocodType]] = []
+        errors: List[Tuple[int, AvtocodException]] = []
 
-        if not (error := parsed_data.error):
-            return parsed_data
-        if error.code == -32603:
-            if data := error.data:
-                if data.code == 0:  # if we did not authorize
-                    raise SessionExpired("Session expired")
-                elif data.code == 401:  # if login/password wrong
-                    raise Unauthorized("User not authenticated")
-        elif error.code == -32600:
-            raise InvalidRequest("Invalid request.")
-        elif error.code == 19004:
-            raise SubscriptionNotFound("Subscription not found.")
-        elif error.code == 22004:
-            raise AccountBanned("Account was banned.")
-        elif error.code == 24001:
-            raise CouldNotFindCar("Couldn't find car.")
-        elif error.code == 17002:
-            raise NotEnoughRepairBalance("There are not enough balance")
-        elif error.code == 18001:
-            raise ReportNotFound("Report with this UUID not found")
+        for index, data in enumerate(self.wrap_multirequest(method, json_data)):
+            try:
+                parsed_responses.append(method.build_response(data))
+            except AvtocodException as e:
+                parsed_responses.append(None)
+                errors.append(
+                    (
+                        index,
+                        e,
+                    )
+                )
 
-        raise AvtocodException(f"Unknown error! {json_data}")
+        return (
+            self.unwrap_multirequest(method, parsed_responses),
+            errors,
+        )
 
     @abc.abstractmethod
     async def close(self) -> None:
@@ -107,7 +108,7 @@ class BaseSession(abc.ABC):
         url: str,
         method: AvtocodMethod[AvtocodType],
         timeout: Optional[int] = UNSET,
-    ) -> AvtocodType:
+    ) -> Tuple[Union[List[AvtocodType], AvtocodType], List[Tuple[int, AvtocodException]]]:
         """
         Making request to avtocod api
         Errors code:

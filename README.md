@@ -5,9 +5,9 @@
     <br>
     <b>Avtocod - неофициальная Python библиотека</b>
     <br>
-    
+
 [![PyPI version](https://img.shields.io/pypi/v/avtocod.svg)](https://pypi.org/project/avtocod/)
-[![Code Quality Score](https://api.codiga.io/project/30917/score/svg)](https://frontend.code-inspector.com/public/project/30917/avtocod/dashboard) 
+[![Code Quality Score](https://api.codiga.io/project/30917/score/svg)](https://frontend.code-inspector.com/public/project/30917/avtocod/dashboard)
 ![Downloads](https://img.shields.io/pypi/dm/avtocod)
 ![codecov](https://codecov.io/gh/Fom123/avtocod/branch/develop/graph/badge.svg)
 ![mypy](https://img.shields.io/badge/type_checker-mypy-style=flat)
@@ -42,7 +42,7 @@ pip3 install -U avtocod
 ### Предупреждение
 Очень рекомендуется сменить ```User-Agent``` при работе с библиотекой.
 Это можно сделать так:
-``` python 
+``` python
 from avtocod import AvtoCod
 from avtocod.session.aiohttp import AiohttpSession
 
