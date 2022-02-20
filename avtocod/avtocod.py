@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import typing
 import warnings
 from types import TracebackType
 from typing import (
@@ -280,6 +281,7 @@ class Pipeline(AvtoCod):
         # self.response_callbacks = response_callbacks
         self.method_stack: List[Tuple[AvtocodMethod[Any], Optional[int]]] = []
 
+    @typing.no_type_check
     def __call__(
         self,
         method: AvtocodMethod[Any],
