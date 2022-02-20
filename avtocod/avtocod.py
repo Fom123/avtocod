@@ -330,7 +330,7 @@ class Pipeline(AvtoCod):
         assert isinstance(responses, list)
         # put any api errors into the response
         for i, e in errors:
-            responses[i] = e
+            responses.insert(i, e)
 
         if raise_on_error and errors:
             raise errors[0][1]

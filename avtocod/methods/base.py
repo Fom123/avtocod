@@ -1,6 +1,6 @@
 import abc
 import uuid
-from typing import Any, Dict, Generic, List, Optional, TypeVar, Union, cast
+from typing import Any, Dict, Generator, Generic, List, Optional, TypeVar, Union, cast
 
 from pydantic import BaseConfig, BaseModel, Extra, Field
 from pydantic.generics import GenericModel
@@ -112,6 +112,15 @@ class AvtocodMethod(abc.ABC, BaseModel, Generic[AvtocodType]):
         if parsed_by_model_json is not _sentinel:
             return parsed_by_model_json  # type: ignore
         return result
+
+    def build_responses_from_generator(
+        self, data_list: List[Dict[str, Any]]
+    ) -> Generator[Union[AvtocodType, AvtocodException], None, None]:
+        for data in data_list:
+            try:
+                yield self.build_response(data)
+            except AvtocodException as e:
+                yield e
 
     @classmethod
     def on_response_parse(cls, response: AvtocodType) -> Union[Any, AvtocodType]:

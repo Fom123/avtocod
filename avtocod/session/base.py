@@ -79,17 +79,13 @@ class BaseSession(abc.ABC):
         parsed_responses: List[Optional[AvtocodType]] = []
         errors: List[Tuple[int, AvtocodException]] = []
 
-        for index, data in enumerate(self.wrap_multirequest(method, json_data)):
-            try:
-                parsed_responses.append(method.build_response(data))
-            except AvtocodException as e:
-                parsed_responses.append(None)
-                errors.append(
-                    (
-                        index,
-                        e,
-                    )
-                )
+        for index, data in enumerate(
+            method.build_responses_from_generator(self.wrap_multirequest(method, json_data))
+        ):
+            if isinstance(data, AvtocodException):
+                errors.append((index, data))
+                continue
+            parsed_responses.append(data)
 
         return (
             self.unwrap_multirequest(method, parsed_responses),
