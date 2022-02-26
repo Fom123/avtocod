@@ -67,8 +67,8 @@ jobs:
 
       - name: Run examples # until I write auto tests:)
         run: |
+          poetry run python examples/pipeline.py
           poetry run python examples/disable_logging.py
-
 #      - name: Test with pytest
 #        run: |
 #          poetry run pytest -p no:warnings --cov=avtocod --cov-config .coveragerc --cov-report=xml
