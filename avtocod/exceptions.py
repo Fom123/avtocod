@@ -40,3 +40,11 @@ class ReportNotFound(AvtocodException):
 
 class ValidationError(AvtocodException):
     pass
+
+
+class InvalidArgument(AvtocodException):
+    pass
+
+
+class ReportGenerationLimitExceeded(AvtocodException):
+    pass

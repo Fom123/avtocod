@@ -63,7 +63,8 @@ class BaseSession(abc.ABC):
     def unwrap_multirequest(method: AvtocodMethod[AvtocodType], data: List[Any]) -> Any:
         if isinstance(method, MultiRequest):
             return data
-        return data[0]
+        if data:
+            return data[0]
 
     def check_response(
         self, method: AvtocodMethod[AvtocodType], content_type: str, content: str

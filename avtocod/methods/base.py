@@ -9,13 +9,16 @@ from avtocod.exceptions import (
     AccountBanned,
     AvtocodException,
     CouldNotFindCar,
+    InvalidArgument,
     InvalidRequest,
     NotEnoughRepairBalance,
+    ReportGenerationLimitExceeded,
     ReportNotFound,
     SessionExpired,
     SubscriptionNotFound,
     Unauthorized,
 )
+from avtocod.utils import wrap_as_list
 
 AvtocodType = TypeVar("AvtocodType", bound=Any)
 _sentinel = object()
@@ -75,25 +78,31 @@ class AvtocodMethod(abc.ABC, BaseModel, Generic[AvtocodType]):
     def check_error(parsed_data: Response[AvtocodType]) -> Response[AvtocodType]:
         if not (error := parsed_data.error):
             return parsed_data
-        if error.code == -32603:
-            if data := error.data:
-                if data.code == 0:  # type: ignore # if we did not authorize
-                    raise SessionExpired("Session expired")
-                elif data.code == 401:  # type: ignore # if login/password wrong
-                    raise Unauthorized("User not authenticated")
-        elif error.code == -32600:
-            raise InvalidRequest("Invalid request.")
-        elif error.code == 19004:
-            raise SubscriptionNotFound("Subscription not found.")
-        elif error.code == 22004:
-            raise AccountBanned("Account was banned.")
-        elif error.code == 24001:
-            raise CouldNotFindCar("Couldn't find car.")
         elif error.code == 17002:
             raise NotEnoughRepairBalance("There are not enough balance")
         elif error.code == 18001:
             raise ReportNotFound("Report with this UUID not found")
-
+        elif error.code == 19004:
+            raise SubscriptionNotFound("Subscription not found.")
+        elif error.code == 22002:
+            raise ReportGenerationLimitExceeded("Report generation limit exceeded")
+        elif error.code == 22004:
+            raise AccountBanned("Account was banned.")
+        elif error.code == 24001:
+            raise CouldNotFindCar("Couldn't find car.")
+        elif error.code == -32600:
+            raise InvalidRequest("Invalid request.")
+        elif error.code == -32602:
+            error_message = "\n".join([str(data.message) for data in wrap_as_list(error.data)])
+            raise InvalidArgument(f"{error_message}")
+        if error.code == -32603:
+            if data := error.data:
+                if data.code == 0:  # type: ignore
+                    # if we did not authorize
+                    raise SessionExpired("Session expired")
+                elif data.code == 401:  # type: ignore
+                    # if login/password wrong
+                    raise Unauthorized("User not authenticated")
         raise AvtocodException(f"Unknown error! {error.json()}")
 
     def dict(self, **kwargs: Any) -> Any:

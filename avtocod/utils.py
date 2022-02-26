@@ -1,5 +1,28 @@
 import functools
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, TypeVar, Union, overload
+
+T = TypeVar("T")
+
+
+@overload
+def wrap_as_list(value: None) -> List[Any]:
+    ...
+
+
+@overload
+def wrap_as_list(value: List[T]) -> List[T]:
+    ...
+
+
+@overload
+def wrap_as_list(value: Union[List[T], T]) -> List[T]:
+    ...
+
+
+def wrap_as_list(value: Optional[T]) -> Union[List[T], List[Any]]:
+    if value is None:
+        return []
+    return value if isinstance(value, list) else [value]
 
 
 def rgetattr(obj: Any, attr: str, *, default: Any = None) -> Any:
