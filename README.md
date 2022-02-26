@@ -1,6 +1,6 @@
 <p align="center">
     <a href="https://github.com/Fom123/avtocod">
-        <img src="https://profi.avtocod.ru/img/icons/apple-touch-icon-152x152.png" alt="Pyrogram" width="128">
+        <img src="https://profi.avtocod.ru/img/icons/apple-touch-icon-152x152.png" alt="Avtocod" width="128">
     </a>
     <br>
     <b>Avtocod - неофициальная Python библиотека</b>
@@ -37,7 +37,7 @@ pip3 install -U avtocod
 
 ### Документация
 
-Временно, вместо документации, вы можете использовать [примеры](examples)
+Временно, вместо документации, вы можете использовать [примеры](https://github.com/Fom123/avtocod/tree/main/examples)
 
 ### Предупреждение
 Очень рекомендуется сменить ```User-Agent``` при работе с библиотекой.
