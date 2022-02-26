@@ -4,21 +4,9 @@ import logging
 import typing
 import warnings
 from types import TracebackType
-from typing import (
-    Any,
-    Awaitable,
-    Final,
-    Generator,
-    List,
-    Optional,
-    Tuple,
-    Type,
-    TypeVar,
-    Union,
-    cast,
-)
+from typing import Any, Awaitable, Final, Generator, List, Optional, Tuple, Type, Union, cast
 
-from .exceptions import ValidationError
+from .exceptions import AvtocodException, ValidationError
 from .methods.authorization import AuthLogin
 from .methods.base import AvtocodMethod, AvtocodType
 from .methods.create_report import CreateReport
@@ -43,8 +31,6 @@ logger = logging.getLogger(__name__)
 MAX_REPORT_LIMIT: Final[int] = 20
 POLLING_DELAY: Final[int] = 5
 POLLING_ERROR: Final[int] = 30
-
-_Avtocod = TypeVar("_Avtocod", bound="AvtoCod")
 
 
 class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
@@ -134,7 +120,7 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
             raise ValidationError("Token is invalid! It can't contains spaces.")
         return True
 
-    def pipeline(self) -> "Pipeline":
+    def pipeline(self) -> Pipeline:
         """
         Return a new pipeline object that can queue multiple commands for
         later execution.
@@ -278,7 +264,6 @@ class Pipeline(AvtoCod):
     def __init__(self, *, token: Optional[str] = None, session: Optional[BaseSession] = None):
         super().__init__(token, session)
 
-        # self.response_callbacks = response_callbacks
         self.method_stack: List[Tuple[AvtocodMethod[Any], Optional[int]]] = []
 
     @typing.no_type_check
@@ -286,7 +271,7 @@ class Pipeline(AvtoCod):
         self,
         method: AvtocodMethod[Any],
         request_timeout: Optional[int] = None,
-    ) -> Union[Pipeline, Awaitable[Pipeline]]:
+    ) -> Pipeline:
         self.method_stack.append((method, request_timeout))
         return self
 
@@ -321,25 +306,25 @@ class Pipeline(AvtoCod):
         methods: List[AvtocodMethod[AvtocodType]],
         raise_on_error: bool = False,
         request_timeout: Optional[int] = None,
-    ) -> Any:
+    ) -> List[Union[AvtocodType, AvtocodException]]:
 
         responses, errors = await self.session(
             MultiRequest(methods=methods), timeout=request_timeout
         )
 
-        assert isinstance(responses, list)
+        assert isinstance(responses, List)
         # put any api errors into the response
         for i, e in errors:
-            responses[i] = e
+            responses.insert(i, e)
 
         if raise_on_error and errors:
             raise errors[0][1]
 
-        return responses
+        return cast(List[Union[AvtocodType, AvtocodException]], responses)
 
     async def execute(
         self, raise_on_error: bool = True, request_timeout: Optional[int] = None
-    ) -> Any:
+    ) -> List[Union[AvtocodType, AvtocodException]]:
         """Execute all the commands in the current pipeline"""
         if not self.method_stack:
             return []
