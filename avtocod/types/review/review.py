@@ -1,6 +1,8 @@
 from datetime import datetime
 from typing import Any, List, Optional
 
+from pydantic import Field
+
 from avtocod.types.base import AvtocodObject, DateUpdate
 from avtocod.types.review.identifiers import Identifiers
 from avtocod.types.review.short_information import ShortInformation
@@ -18,7 +20,8 @@ class Query(AvtocodObject):
 class CountItems(AvtocodObject):
     count: Optional[int] = None
     items: Optional[List[Any]] = None
-    _comment: Optional[str] = None
+    comment: Optional[str] = Field(None, alias="_comment")
+    date: Optional[DateUpdate] = None
 
 
 class Actuality(AvtocodObject):
@@ -30,7 +33,7 @@ class FilledBy(AvtocodObject):
 
 
 class Item(AvtocodObject):
-    _id: Optional[int] = None
+    id: Optional[int] = Field(None, alias="_id")
     mileage: Optional[int] = None
     actuality: Optional[Actuality] = None
     filled_by: Optional[FilledBy] = None
@@ -46,7 +49,7 @@ class Utilizations(CountItems):
 
 class GotsAuctions(AvtocodObject):
     items: Optional[List[Any]] = None
-    _comment: Optional[str] = None
+    comment: Optional[str] = Field(None, alias="_comment")
 
 
 class GeoOwner(AvtocodObject):
@@ -105,7 +108,7 @@ class IdentifiersInfo(AvtocodObject):
 class AdditionalInfo(AvtocodObject):
     vehicle: Optional[VehicleInfo] = None
     identifiers: Optional[IdentifiersInfo] = None
-    _comment: str
+    comment: Optional[str] = Field(None, alias="_comment")
 
 
 class VehicleMasked(AvtocodObject):
@@ -118,11 +121,11 @@ class VehicleMasked(AvtocodObject):
 
 class IdentifiersMasked(AvtocodObject):
     vehicle: Optional[VehicleMasked] = None
-    _comment: Optional[str] = None
+    comment: Optional[str] = Field(None, alias="_comment")
 
 
 class Source(AvtocodObject):
-    _id: Optional[str] = None
+    id: Optional[str] = Field(None, alias="_id")
     state: Optional[str] = None
     extended_state: Optional[str] = None
 
@@ -135,14 +138,14 @@ class Photos(AvtocodObject):
     date: Optional[DateUpdate] = None
     count: Optional[int] = None
     items: Optional[List[Any]] = None
-    _comment: Optional[str] = None
+    comment: Optional[str] = Field(None, alias="_comment")
 
 
 class Pledges(AvtocodObject):
     date: Optional[DateUpdate] = None
     count: Optional[int] = None
     items: Optional[List[Any]] = None
-    _comment: Optional[str] = None
+    comment: Optional[str] = Field(None, alias="_comment")
 
 
 class Regions(AvtocodObject):
@@ -180,14 +183,14 @@ class Coefficients(AvtocodObject):
 
 class Osago(AvtocodObject):
     price: Optional[Price] = None
-    _comment: Optional[str] = None
+    comment: Optional[str] = Field(None, alias="_comment")
     coefficients: Optional[Coefficients] = None
 
 
 class Calculate(AvtocodObject):
     tax: Optional[Tax] = None
     osago: Optional[Osago] = None
-    _comment: Optional[str] = None
+    comment: Optional[str] = Field(None, alias="_comment")
 
 
 class DateHistory(AvtocodObject):
@@ -206,7 +209,7 @@ class LastOperation(AvtocodObject):
 
 
 class ItemHistory(AvtocodObject):
-    _id: Optional[int] = None
+    id: Optional[int] = Field(None, alias="_id")
     date: Optional[DateHistory] = None
     owner: Optional[OwnerHistory] = None
     last_operation: Optional[LastOperation] = None
@@ -216,7 +219,7 @@ class HistoryOwnership(AvtocodObject):
     date: Optional[DateUpdate] = None
     count: Optional[int] = None
     items: Optional[List[ItemHistory]] = None
-    _comment: Optional[str] = None
+    comment: Optional[str] = Field(None, alias="_comment")
 
 
 class Ownership(AvtocodObject):
@@ -229,7 +232,7 @@ class Stealings(CountItems):
 
 
 class Items(AvtocodObject):
-    _id: Optional[int] = None
+    id: Optional[int] = Field(None, alias="_id")
     uri: Optional[str] = None
 
 
@@ -243,7 +246,7 @@ class Application(AvtocodObject):
 
 
 class Metadata(AvtocodObject):
-    _comment: Optional[str] = None
+    comment: Optional[str] = Field(None, alias="_comment")
     application: Optional[Application] = None
 
 

@@ -123,7 +123,7 @@ class AiohttpSession(BaseSession):
         url: str,
         method: AvtocodMethod[AvtocodType],
         timeout: Optional[int] = None,
-    ) -> Tuple[ResponsesType, List[Tuple[int, AvtocodException]]]:
+    ) -> Tuple[ResponsesType[AvtocodType], List[Tuple[int, AvtocodException]]]:
         session = await self.create_session()
 
         requests = self.wrap_multirequest(method, method.build_request())

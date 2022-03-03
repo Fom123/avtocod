@@ -97,11 +97,11 @@ class AvtocodMethod(abc.ABC, BaseModel, Generic[AvtocodType]):
             error_message = "\n".join([str(data.message) for data in wrap_as_list(error.data)])
             raise InvalidArgument(f"{error_message}")
         if error.code == -32603:
-            if data := error.data:  # type FullError
+            if data := cast(FullError, error.data):
                 if data.code == 0:
                     # if we did not authorize
                     raise SessionExpired("Session expired")
-                elif data.code == 401:  # type: ignore
+                elif data.code == 401:
                     # if login/password wrong
                     raise Unauthorized("User not authenticated")
                 raise InternalError(data.message)
@@ -142,4 +142,4 @@ class AvtocodMethod(abc.ABC, BaseModel, Generic[AvtocodType]):
         from avtocod import AvtoCod
 
         avtocod = AvtoCod.get_current(no_error=False)
-        return avtocod(self).__await__()
+        return avtocod(self).__await__()  # type: ignore

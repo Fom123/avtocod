@@ -140,7 +140,7 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
 
     @classmethod
     async def from_credentials(
-        cls,
+        cls: Type[AvtoCodT],
         email: str,
         password: str,
         request_timeout: Optional[int] = None,
@@ -154,7 +154,7 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
         return cls(login_data.token, *args, **kwargs)
 
     @classmethod
-    async def from_token(cls, token: str, *args: Any, **kwargs: Any) -> AvtoCodT:
+    async def from_token(cls: Type[AvtoCodT], token: str, *args: Any, **kwargs: Any) -> AvtoCodT:
         """
         Same as `AvtoCod(token)`
         """
@@ -235,7 +235,7 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
         limit: int = 0,
         delay_between_request: int = 5,
         request_timeout: Optional[int] = None,
-    ) -> Optional[AsyncGenerator[ReviewsList, None]]:
+    ) -> AsyncGenerator[ReviewsList, None]:
         current = 0
         total = limit or (1 << 31) - 1
         limit = min(20, total)

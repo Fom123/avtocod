@@ -2,11 +2,10 @@ import abc
 import datetime
 import json
 from types import TracebackType
-from typing import Any, Callable, Dict, Final, List, Optional, Tuple, Type, Union, cast
+from typing import Any, Callable, Dict, Final, List, Optional, Tuple, Type, Union
 
 from avtocod.methods.base import AvtocodMethod, AvtocodType
 from avtocod.types.base import UNSET, utcformat
-
 from ..exceptions import AvtocodException, NetworkError
 from ..methods.multirequest import MultiRequest
 
@@ -56,10 +55,10 @@ class BaseSession(abc.ABC):
     @staticmethod
     def wrap_multirequest(
         method: Union[AvtocodMethod[AvtocodType], List[AvtocodMethod[AvtocodType]]],
-        data: Dict[str, Any],
-    ) -> List[Dict[str, Any]]:
+        data: Any,
+    ) -> Any:
         if isinstance(method, MultiRequest):
-            return cast(List[Dict[str, Any]], data)
+            return data
         return [data]
 
     @staticmethod
@@ -108,7 +107,7 @@ class BaseSession(abc.ABC):
         url: str,
         method: AvtocodMethod[AvtocodType],
         timeout: Optional[int] = UNSET,
-    ) -> Tuple[ResponsesType, List[Tuple[int, AvtocodException]]]:
+    ) -> Tuple[ResponsesType[AvtocodType], List[Tuple[int, AvtocodException]]]:
         """
         Making request to avtocod api
         Errors code:
