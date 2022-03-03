@@ -38,6 +38,10 @@ class ReportNotFound(AvtocodException):
     pass
 
 
+class InternalError(AvtocodException):
+    pass
+
+
 class ValidationError(AvtocodException):
     pass
 

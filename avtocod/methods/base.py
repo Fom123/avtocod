@@ -9,6 +9,7 @@ from avtocod.exceptions import (
     AccountBanned,
     AvtocodException,
     CouldNotFindCar,
+    InternalError,
     InvalidArgument,
     InvalidRequest,
     NotEnoughRepairBalance,
@@ -28,13 +29,13 @@ class FullError(BaseModel):
     type: Optional[str] = None
     exp_class: Optional[str] = Field(alias="class", default=None)
     message: Optional[str] = None
-    code: Optional[int] = None
+    code: Union[Optional[int], Optional[str]] = None
 
 
 class AvtocodError(BaseModel):
     code: int
     message: str
-    data: Union[List[FullError], Optional[FullError]] = None
+    data: Union[Optional[List[FullError]], Optional[FullError]] = None
 
 
 class Response(GenericModel, Generic[AvtocodType]):
@@ -96,13 +97,14 @@ class AvtocodMethod(abc.ABC, BaseModel, Generic[AvtocodType]):
             error_message = "\n".join([str(data.message) for data in wrap_as_list(error.data)])
             raise InvalidArgument(f"{error_message}")
         if error.code == -32603:
-            if data := error.data:
-                if data.code == 0:  # type: ignore
+            if data := error.data:  # type FullError
+                if data.code == 0:
                     # if we did not authorize
                     raise SessionExpired("Session expired")
                 elif data.code == 401:  # type: ignore
                     # if login/password wrong
                     raise Unauthorized("User not authenticated")
+                raise InternalError(data.message)
         raise AvtocodException(f"Unknown error! {error.json()}")
 
     def dict(self, **kwargs: Any) -> Any:
@@ -134,3 +136,10 @@ class AvtocodMethod(abc.ABC, BaseModel, Generic[AvtocodType]):
     @classmethod
     def on_response_parse(cls, response: AvtocodType) -> Union[Any, AvtocodType]:
         return _sentinel
+
+    def __await__(self) -> Generator[Any, None, AvtocodType]:
+        """Required for manually calling method and testing"""
+        from avtocod import AvtoCod
+
+        avtocod = AvtoCod.get_current(no_error=False)
+        return avtocod(self).__await__()

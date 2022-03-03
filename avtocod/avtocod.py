@@ -1,10 +1,23 @@
 from __future__ import annotations
 
+import asyncio
 import logging
-import typing
 import warnings
 from types import TracebackType
-from typing import Any, Awaitable, Final, Generator, List, Optional, Tuple, Type, Union, cast
+from typing import (
+    Any,
+    AsyncGenerator,
+    Awaitable,
+    Generator,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+    cast,
+    no_type_check,
+)
 
 from .exceptions import AvtocodException, ValidationError
 from .methods.authorization import AuthLogin
@@ -28,9 +41,7 @@ from .types.review.reviews_list import Filters, Pagination, ReviewsList, Sort
 
 logger = logging.getLogger(__name__)
 
-MAX_REPORT_LIMIT: Final[int] = 20
-POLLING_DELAY: Final[int] = 5
-POLLING_ERROR: Final[int] = 30
+AvtoCodT = TypeVar("AvtoCodT", bound="AvtoCod")
 
 
 class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
@@ -135,7 +146,7 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
         request_timeout: Optional[int] = None,
         *args: Any,
         **kwargs: Any,
-    ) -> AvtoCod:
+    ) -> AvtoCodT:
         avtocod = cls(*args, **kwargs)
 
         login_data = await avtocod.login(email, password, request_timeout=request_timeout)
@@ -143,10 +154,16 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
         return cls(login_data.token, *args, **kwargs)
 
     @classmethod
-    async def from_token(cls, token: str, *args: Any, **kwargs: Any) -> AvtoCod:
+    async def from_token(cls, token: str, *args: Any, **kwargs: Any) -> AvtoCodT:
         """
         Same as `AvtoCod(token)`
         """
+        warnings.warn(
+            "`AvtoCod.from_token(...)` is deprecated and will be removed in version 0.4.0. "
+            "Do AvtoCod(token=...) instead",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return cls(token, *args, **kwargs)
 
     async def login(
@@ -211,6 +228,39 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
         call = GetReviewsList(pagination=pagination, sort=sort, filters=filters)
         return self(method=call, request_timeout=request_timeout)
 
+    async def iter_reports_list(
+        self,
+        sort: Optional[Sort] = None,
+        filters: Optional[Filters] = None,
+        limit: int = 0,
+        delay_between_request: int = 5,
+        request_timeout: Optional[int] = None,
+    ) -> Optional[AsyncGenerator[ReviewsList, None]]:
+        current = 0
+        total = limit or (1 << 31) - 1
+        limit = min(20, total)
+        page = 1
+
+        while True:
+            reports = await self.get_reports_list(
+                pagination=Pagination(page=page, limit=limit),
+                sort=sort,
+                filters=filters,
+                request_timeout=request_timeout,
+            )
+            if not reports:
+                break
+
+            page += 1
+
+            for report in reports:
+                yield report
+                current += 1
+
+                if current >= total:
+                    return
+            await asyncio.sleep(delay_between_request)
+
     async def get_balance(self, request_timeout: Optional[int] = None) -> Tuple[int, str]:
         """
         Get the balance and account id information
@@ -266,7 +316,7 @@ class Pipeline(AvtoCod):
 
         self.method_stack: List[Tuple[AvtocodMethod[Any], Optional[int]]] = []
 
-    @typing.no_type_check
+    @no_type_check
     def __call__(
         self,
         method: AvtocodMethod[Any],

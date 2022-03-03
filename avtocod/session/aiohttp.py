@@ -10,8 +10,7 @@ from aiohttp import BasicAuth, ClientError, ClientSession, TCPConnector
 
 from avtocod.exceptions import AvtocodException, NetworkError
 from avtocod.methods.base import AvtocodMethod, AvtocodType
-from avtocod.methods.multirequest import MultiRequest
-from avtocod.session.base import BaseSession
+from avtocod.session.base import BaseSession, ResponsesType
 from avtocod.types.base import UNSET
 
 _ProxyBasic = Union[str, Tuple[str, BasicAuth]]
@@ -124,20 +123,18 @@ class AiohttpSession(BaseSession):
         url: str,
         method: AvtocodMethod[AvtocodType],
         timeout: Optional[int] = None,
-    ) -> Tuple[Union[AvtocodType, List[AvtocodType]], List[Tuple[int, AvtocodException]]]:
+    ) -> Tuple[ResponsesType, List[Tuple[int, AvtocodException]]]:
         session = await self.create_session()
 
-        requests = method.build_request()
-        if isinstance(method, MultiRequest):
-            data = [self._build_raw_data(request.dict()) for request in requests]  # type: ignore
-        else:
-            data = self._build_raw_data(requests.dict())  # type: ignore
+        requests = self.wrap_multirequest(method, method.build_request())
+
+        data = [self._build_raw_data(request.dict()) for request in requests]
 
         try:
             async with session.post(
                 url,
                 headers=self.headers,
-                data=self.json_dumps(data),
+                data=self.json_dumps(self.unwrap_multirequest(method, data)),
                 timeout=self.timeout if timeout is None else timeout,
             ) as response:
                 raw_response = await response.text()

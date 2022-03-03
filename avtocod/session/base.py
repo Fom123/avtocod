@@ -13,6 +13,9 @@ from ..methods.multirequest import MultiRequest
 _JsonLoads = Callable[..., Any]
 _JsonDumps = Callable[..., str]
 
+ResponsesType = Union[AvtocodType, List[AvtocodType]]
+
+
 DEFAULT_TIMEOUT: Final[int] = 30
 AVTOCOD_API: str = "https://api-profi.avtocod.ru/rpc"
 HEADERS: Dict[str, str] = {
@@ -105,7 +108,7 @@ class BaseSession(abc.ABC):
         url: str,
         method: AvtocodMethod[AvtocodType],
         timeout: Optional[int] = UNSET,
-    ) -> Tuple[Union[List[AvtocodType], AvtocodType], List[Tuple[int, AvtocodException]]]:
+    ) -> Tuple[ResponsesType, List[Tuple[int, AvtocodException]]]:
         """
         Making request to avtocod api
         Errors code:
