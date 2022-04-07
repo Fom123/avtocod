@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any, Dict, Iterable, List, Optional, Tuple, Type, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple, Type, Union, cast
 
 from aiohttp import BasicAuth, ClientError, ClientSession, TCPConnector
 
@@ -16,6 +16,9 @@ from avtocod.types.base import UNSET
 _ProxyBasic = Union[str, Tuple[str, BasicAuth]]
 _ProxyChain = Iterable[_ProxyBasic]
 _ProxyType = Union[_ProxyChain, _ProxyBasic]
+
+if TYPE_CHECKING:
+    from avtocod import AvtoCod
 
 
 def _retrieve_basic(basic: _ProxyBasic) -> Dict[str, Any]:
@@ -120,7 +123,7 @@ class AiohttpSession(BaseSession):
 
     async def _make_request(
         self,
-        url: str,
+        avtocod: AvtoCod,
         method: AvtocodMethod[AvtocodType],
         timeout: Optional[int] = None,
     ) -> Tuple[ResponsesType[AvtocodType], List[Tuple[int, AvtocodException]]]:
@@ -132,7 +135,7 @@ class AiohttpSession(BaseSession):
 
         try:
             async with session.post(
-                url,
+                self.api,
                 headers=self.headers,
                 data=self.json_dumps(self.unwrap_multirequest(method, data)),
                 timeout=self.timeout if timeout is None else timeout,

@@ -85,7 +85,7 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
         :param method:
         :return:
         """
-        response, errors = await self.session(method, timeout=request_timeout)
+        response, errors = await self.session(self, method, timeout=request_timeout)
         # cuz avtocod instances can return only one response. Made for pipeline compatibility
         if errors:
             raise errors[0][1]
@@ -193,7 +193,7 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
         :param query_type: the type of the query, must be one of the following VIN/BODY/GRZ
         :param request_timeout: timeout of how much request can handle
 
-        :return: uuid of review on success
+        :return: uuid of reviews_entity on success
         """
         call = CreateReport(query=query, type=query_type)
         return self(method=call, request_timeout=request_timeout)
@@ -336,10 +336,10 @@ class Pipeline(AvtoCod):
     ) -> None:
         await self.reset()
 
-    async def _async_self(self) -> Pipeline:
+    async def _async_self(self: Type[AvtoCodT]) -> AvtoCodT:
         return self
 
-    def __await__(self) -> Generator[Any, None, Pipeline]:
+    def __await__(self: Type[AvtoCodT]) -> Generator[Any, None, AvtoCodT]:
         return self._async_self().__await__()
 
     def __len__(self) -> int:
@@ -359,7 +359,7 @@ class Pipeline(AvtoCod):
     ) -> List[Union[AvtocodType, AvtocodException]]:
 
         responses, errors = await self.session(
-            MultiRequest(methods=methods), timeout=request_timeout
+            self, MultiRequest(methods=methods), timeout=request_timeout
         )
 
         assert isinstance(responses, List)

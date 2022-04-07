@@ -1,19 +1,25 @@
 import abc
 import datetime
 import json
+from functools import partial
 from types import TracebackType
-from typing import Any, Callable, Dict, Final, List, Optional, Tuple, Type, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, Final, List, Optional, Tuple, Type, Union
 
 from avtocod.methods.base import AvtocodMethod, AvtocodType
-from avtocod.types.base import UNSET, utcformat
+from avtocod.types.base import UNSET, AvtocodObject, utcformat
+
 from ..exceptions import AvtocodException, NetworkError
 from ..methods.multirequest import MultiRequest
+from .middlewares.base import RequestMiddlewareType
+
+if TYPE_CHECKING:
+    from .. import AvtoCod
 
 _JsonLoads = Callable[..., Any]
 _JsonDumps = Callable[..., str]
 
 ResponsesType = Union[AvtocodType, List[AvtocodType]]
-
+Exceptions = Tuple[int, AvtocodException]
 
 DEFAULT_TIMEOUT: Final[int] = 30
 AVTOCOD_API: str = "https://api-profi.avtocod.ru/rpc"
@@ -47,14 +53,22 @@ class BaseSession(abc.ABC):
         self.timeout = timeout
         self.headers = headers if headers else HEADERS.copy()
 
+        self._middlewares: List[RequestMiddlewareType[AvtocodObject]] = []
+
     async def __call__(
-        self, method: AvtocodMethod[AvtocodType], timeout: Optional[int] = UNSET
-    ) -> Tuple[Union[List[AvtocodType], AvtocodType], List[Tuple[int, AvtocodException]]]:
-        return await self._make_request(self.api, method, timeout=timeout)
+        self,
+        avtocod: "AvtoCod",
+        method: AvtocodMethod[AvtocodType],
+        timeout: Optional[int] = UNSET,
+    ) -> Tuple[ResponsesType, List[Exceptions]]:
+        middleware = partial(self._make_request, timeout=timeout)
+        for m in reversed(self._middlewares):
+            middleware = partial(m, middleware)
+        return await middleware(avtocod, method)
 
     @staticmethod
     def wrap_multirequest(
-        method: Union[AvtocodMethod[AvtocodType], List[AvtocodMethod[AvtocodType]]],
+        method: AvtocodMethod[AvtocodType],
         data: Any,
     ) -> Any:
         if isinstance(method, MultiRequest):
@@ -143,6 +157,12 @@ class BaseSession(abc.ABC):
         elif isinstance(value, dict):
             return {k: self.prepare_value(v) for k, v in value.items() if v is not None}
         return value
+
+    def middleware(
+        self, middleware: RequestMiddlewareType[AvtocodObject]
+    ) -> RequestMiddlewareType[AvtocodObject]:
+        self._middlewares.append(middleware)
+        return middleware
 
     async def __aenter__(self) -> "BaseSession":
         return self
