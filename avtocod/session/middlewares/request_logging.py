@@ -1,13 +1,13 @@
 import logging
 from collections import defaultdict
-from typing import TYPE_CHECKING, Any, List, Optional, Type
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Type
 
-from .base import BaseRequestMiddleware, NextRequestMiddlewareType
 from ...methods import AvtocodMethod, Response
 from ...types import AvtocodObject
+from .base import BaseRequestMiddleware, NextRequestMiddlewareType
 
 if TYPE_CHECKING:
-    from ...avtocod import Avtocod
+    from ...avtocod import AvtoCod
 
 logger = logging.getLogger(__name__)
 
@@ -19,12 +19,12 @@ class RequestLogging(BaseRequestMiddleware):
         :param ignore_methods: methods to ignore in logging middleware
         """
         self.ignore_methods = ignore_methods if ignore_methods else []
-        self.counter = defaultdict(int)
+        self.counter: Dict[str, int] = defaultdict(int)
 
     async def __call__(
         self,
         make_request: NextRequestMiddlewareType,
-        avtocod: "Avtocod",
+        avtocod: "AvtoCod",
         method: AvtocodMethod[AvtocodObject],
     ) -> Response[AvtocodObject]:
         if type(method) not in self.ignore_methods:

@@ -19,7 +19,7 @@ def wrap_as_list(value: Union[List[T], T]) -> List[T]:
     ...
 
 
-def wrap_as_list(value: Optional[T]) -> Union[List[T], List[Any]]:
+def wrap_as_list(value: Any) -> Any:
     if value is None:
         return []
     return value if isinstance(value, list) else [value]

@@ -60,10 +60,10 @@ class BaseSession(abc.ABC):
         avtocod: "AvtoCod",
         method: AvtocodMethod[AvtocodType],
         timeout: Optional[int] = UNSET,
-    ) -> Tuple[ResponsesType, List[Exceptions]]:
+    ) -> Tuple[ResponsesType[AvtocodType], List[Exceptions]]:
         middleware = partial(self._make_request, timeout=timeout)
         for m in reversed(self._middlewares):
-            middleware = partial(m, middleware)
+            middleware = partial(m, middleware)   # type: ignore
         return await middleware(avtocod, method)
 
     @staticmethod
@@ -118,10 +118,10 @@ class BaseSession(abc.ABC):
     @abc.abstractmethod
     async def _make_request(
         self,
-        url: str,
+        avtocod: AvtoCod,
         method: AvtocodMethod[AvtocodType],
         timeout: Optional[int] = UNSET,
-    ) -> Tuple[ResponsesType[AvtocodType], List[Tuple[int, AvtocodException]]]:
+    ) -> Tuple[ResponsesType[AvtocodType], List[Exceptions]]:
         """
         Making request to avtocod api
         Errors code:

@@ -8,9 +8,9 @@ from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple, Ty
 
 from aiohttp import BasicAuth, ClientError, ClientSession, TCPConnector
 
-from avtocod.exceptions import AvtocodException, NetworkError
+from avtocod.exceptions import NetworkError
 from avtocod.methods.base import AvtocodMethod, AvtocodType
-from avtocod.session.base import BaseSession, ResponsesType
+from avtocod.session.base import BaseSession, Exceptions, ResponsesType
 from avtocod.types.base import UNSET
 
 _ProxyBasic = Union[str, Tuple[str, BasicAuth]]
@@ -126,7 +126,7 @@ class AiohttpSession(BaseSession):
         avtocod: AvtoCod,
         method: AvtocodMethod[AvtocodType],
         timeout: Optional[int] = None,
-    ) -> Tuple[ResponsesType[AvtocodType], List[Tuple[int, AvtocodException]]]:
+    ) -> Tuple[ResponsesType[AvtocodType], List[Exceptions]]:
         session = await self.create_session()
 
         requests = self.wrap_multirequest(method, method.build_request())

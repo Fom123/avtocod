@@ -42,6 +42,7 @@ from .types.review.reviews_list import Filters, Pagination, ReviewsList, Sort
 logger = logging.getLogger(__name__)
 
 AvtoCodT = TypeVar("AvtoCodT", bound="AvtoCod")
+PipelineT = TypeVar("PipelineT", bound="Pipeline")
 
 
 class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
@@ -336,10 +337,10 @@ class Pipeline(AvtoCod):
     ) -> None:
         await self.reset()
 
-    async def _async_self(self: Type[AvtoCodT]) -> AvtoCodT:
+    async def _async_self(self: PipelineT) -> PipelineT:
         return self
 
-    def __await__(self: Type[AvtoCodT]) -> Generator[Any, None, AvtoCodT]:
+    def __await__(self: PipelineT) -> Generator[Any, None, PipelineT]:
         return self._async_self().__await__()
 
     def __len__(self) -> int:
