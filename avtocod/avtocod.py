@@ -16,7 +16,6 @@ from typing import (
     TypeVar,
     Union,
     cast,
-    no_type_check,
 )
 
 from .exceptions import AvtocodException, ValidationError
@@ -123,12 +122,12 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
         self.session.headers["Authorization"] = f"Bearer {self._token}"
 
     def validate_token(self) -> bool:
-        if not isinstance(self._token, str):
+        if not isinstance(self.token, str):
             raise ValidationError(
-                "Token is invalid! " f"It must be 'str' type instead of {type(self._token)} type."
+                "Token is invalid! " f"It must be 'str' type instead of {type(self.token)} type."
             )
 
-        if any(x.isspace() for x in self._token):
+        if any(x.isspace() for x in self.token):
             raise ValidationError("Token is invalid! It can't contains spaces.")
         return True
 
@@ -317,8 +316,7 @@ class Pipeline(AvtoCod):
 
         self.method_stack: List[Tuple[AvtocodMethod[Any], Optional[int]]] = []
 
-    @no_type_check
-    def __call__(
+    def __call__(  # type: ignore[override]
         self,
         method: AvtocodMethod[Any],
         request_timeout: Optional[int] = None,

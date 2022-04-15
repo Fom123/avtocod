@@ -35,6 +35,6 @@ class RequestLogging(BaseRequestMiddleware):
                 type(method).__name__,
                 self.counter[str(method)],
                 avtocod.token,
-                sum(self.counter.values())
+                sum(self.counter.values()),
             )
         return await make_request(avtocod, method)
