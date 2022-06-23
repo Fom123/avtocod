@@ -1,10 +1,11 @@
+from avtocod.types.review.reviews_entity.identifiers import Identifiers, Vehicle
+from avtocod.types.review.reviews_entity.tech_data import TechData
+
 from .generation import ReviewGeneration, ReviewUpgrade
-from .identifiers import Identifiers, Vehicle
 from .query_type import QueryNumber, QueryType
 from .review import Review
 from .reviews_list import BaseStatus, Filters, Pagination, Query, ReviewList, Sort
 from .short_information import ShortInformation
-from .tech_data import TechData
 
 __all__ = [
     "ReviewGeneration",

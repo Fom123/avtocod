@@ -1,265 +1,35 @@
 from datetime import datetime
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import Field
 
-from avtocod.types.base import AvtocodObject, DateUpdate
-from avtocod.types.review.identifiers import Identifiers
+from avtocod.types.base import AvtocodObject
+from avtocod.types.reusable import CountItems
+from avtocod.types.review.reviews_entity.accidents import Accidents, Pledges
+from avtocod.types.review.reviews_entity.additional_info import AdditionalInfo
+from avtocod.types.review.reviews_entity.calculate import Calculate
+from avtocod.types.review.reviews_entity.fines import Fines
+from avtocod.types.review.reviews_entity.gots_action import GotsAuctions
+from avtocod.types.review.reviews_entity.identifiers import Identifiers
+from avtocod.types.review.reviews_entity.last_generation_stat import LastGenerationStat
+from avtocod.types.review.reviews_entity.market_price import MarketPrices
+from avtocod.types.review.reviews_entity.metadata import Metadata
+from avtocod.types.review.reviews_entity.mileages import Mileages
+from avtocod.types.review.reviews_entity.owner import Ownership
+from avtocod.types.review.reviews_entity.photos import Images
+from avtocod.types.review.reviews_entity.query import Query
+from avtocod.types.review.reviews_entity.state import State
+from avtocod.types.review.reviews_entity.stealings import Stealings
+from avtocod.types.review.reviews_entity.tech_data import TechData
+from avtocod.types.review.reviews_entity.utilization import Utilizations
 from avtocod.types.review.short_information import ShortInformation
-from avtocod.types.review.tech_data import TechData
 from avtocod.utils import filter_payload, rgetattr
-
-
-class Query(AvtocodObject):
-    body: Optional[str] = None
-    type: Optional[str] = None
-    storages: Optional[List[Any]] = None
-    schema_version: Optional[str] = None
-
-
-class CountItems(AvtocodObject):
-    count: Optional[int] = None
-    items: Optional[List[Any]] = None
-    comment: Optional[str] = Field(None, alias="_comment")
-    date: Optional[DateUpdate] = None
-
-
-class Actuality(AvtocodObject):
-    date: Optional[str] = None
-
-
-class FilledBy(AvtocodObject):
-    source: Optional[str] = None
-
-
-class Item(AvtocodObject):
-    id: Optional[int] = Field(None, alias="_id")
-    mileage: Optional[int] = None
-    actuality: Optional[Actuality] = None
-    filled_by: Optional[FilledBy] = None
-
-
-class Mileages(CountItems):
-    items: Optional[List[Item]] = None
-
-
-class Utilizations(CountItems):
-    was_utilized: Optional[bool] = None
-
-
-class GotsAuctions(AvtocodObject):
-    items: Optional[List[Any]] = None
-    comment: Optional[str] = Field(None, alias="_comment")
-
-
-class GeoOwner(AvtocodObject):
-    city: Optional[str] = None
-    region: Optional[str] = None
-
-
-class OwnerInfo(AvtocodObject):
-    geo: Optional[GeoOwner] = None
-    type: Optional[str] = None
-    enforcement_proceedings: Any
-
-
-class Segment(AvtocodObject):
-    euro: Optional[List[Any]] = None
-
-
-class Category(AvtocodObject):
-    code: Optional[str] = None
-    description: Optional[str] = None
-
-
-class Org(AvtocodObject):
-    name: Optional[str] = None
-
-
-class DatePassport(AvtocodObject):
-    receive: Optional[str] = None
-
-
-class Passport(AvtocodObject):
-    org: Optional[Org] = None
-    date: Optional[DatePassport] = None
-    number: Optional[str] = None
-    has_dublicate: Optional[bool] = None
-
-
-class Modifications(AvtocodObject):
-    was_modificated: Optional[bool] = None
-
-
-class VehicleInfo(AvtocodObject):
-    notes: Optional[List[str]] = None
-    owner: Optional[OwnerInfo] = None
-    segment: Optional[Segment] = None
-    category: Optional[Category] = None
-    exported: Optional[bool] = None
-    passport: Optional[Passport] = None
-    modifications: Optional[Modifications] = None
-
-
-class IdentifiersInfo(AvtocodObject):
-    vin: Optional[Any] = None
-
-
-class AdditionalInfo(AvtocodObject):
-    vehicle: Optional[VehicleInfo] = None
-    identifiers: Optional[IdentifiersInfo] = None
-    comment: Optional[str] = Field(None, alias="_comment")
-
-
-class VehicleMasked(AvtocodObject):
-    pts: Optional[str] = None
-    sts: Optional[str] = None
-    body: Optional[str] = None
-    chassis: Optional[str] = None
-    reg_num: Optional[str] = None
-
-
-class IdentifiersMasked(AvtocodObject):
-    vehicle: Optional[VehicleMasked] = None
-    comment: Optional[str] = Field(None, alias="_comment")
-
-
-class Source(AvtocodObject):
-    id: Optional[str] = Field(None, alias="_id")
-    state: Optional[str] = None
-    extended_state: Optional[str] = None
-
-
-class State(AvtocodObject):
-    sources: Optional[List[Source]]
-
-
-class Photos(AvtocodObject):
-    date: Optional[DateUpdate] = None
-    count: Optional[int] = None
-    items: Optional[List[Any]] = None
-    comment: Optional[str] = Field(None, alias="_comment")
-
-
-class Pledges(AvtocodObject):
-    date: Optional[DateUpdate] = None
-    count: Optional[int] = None
-    items: Optional[List[Any]] = None
-    comment: Optional[str] = Field(None, alias="_comment")
-
-
-class Regions(AvtocodObject):
-    yearly: Optional[Any] = None
-
-
-class Current(AvtocodObject):
-    city: Optional[List[Any]] = None
-    region: Optional[List[Any]] = None
-    yearly: Optional[Any] = None
-
-
-class MoscowRegion(AvtocodObject):
-    yearly: Optional[Any] = None
-
-
-class Tax(AvtocodObject):
-    moscow: Optional[MoscowRegion] = None
-    regions: Optional[Regions] = None
-
-
-class Price(AvtocodObject):
-    moscow: Optional[MoscowRegion] = None
-    current: Optional[Current] = None
-    moscow_region: Optional[MoscowRegion] = None
-
-
-class Regional(AvtocodObject):
-    value: Optional[float] = None
-
-
-class Coefficients(AvtocodObject):
-    regional: Optional[Regional] = None
-
-
-class Osago(AvtocodObject):
-    price: Optional[Price] = None
-    comment: Optional[str] = Field(None, alias="_comment")
-    coefficients: Optional[Coefficients] = None
-
-
-class Calculate(AvtocodObject):
-    tax: Optional[Tax] = None
-    osago: Optional[Osago] = None
-    comment: Optional[str] = Field(None, alias="_comment")
-
-
-class DateHistory(AvtocodObject):
-    start: str
-    end: Optional[str] = None
-
-
-class OwnerHistory(AvtocodObject):
-    type: Optional[str] = None
-    company: Optional[Any] = None
-
-
-class LastOperation(AvtocodObject):
-    code: Optional[str] = None
-    description: Optional[str] = None
-
-
-class ItemHistory(AvtocodObject):
-    id: Optional[int] = Field(None, alias="_id")
-    date: Optional[DateHistory] = None
-    owner: Optional[OwnerHistory] = None
-    last_operation: Optional[LastOperation] = None
-
-
-class HistoryOwnership(AvtocodObject):
-    date: Optional[DateUpdate] = None
-    count: Optional[int] = None
-    items: Optional[List[ItemHistory]] = None
-    comment: Optional[str] = Field(None, alias="_comment")
-
-
-class Ownership(AvtocodObject):
-    history: Optional[HistoryOwnership] = None
-
-
-class Stealings(CountItems):
-    date: Optional[DateUpdate] = None
-    is_wanted: Optional[bool] = None
-
-
-class Items(AvtocodObject):
-    id: Optional[int] = Field(None, alias="_id")
-    uri: Optional[str] = None
-
-
-class Images(AvtocodObject):
-    photos: Optional[Photos] = None
-
-
-class Application(AvtocodObject):
-    uid: Optional[str] = None
-    version: Optional[str] = None
-
-
-class Metadata(AvtocodObject):
-    comment: Optional[str] = Field(None, alias="_comment")
-    application: Optional[Application] = None
-
-
-class Accidents(AvtocodObject):
-    history: Optional[Pledges] = None
-    insurance: Optional[DateUpdate] = None
-    has_accidents: Optional[bool] = None
 
 
 class ContentData(AvtocodObject):
     pledges: Optional[Pledges] = None
     mileages: Optional[Mileages] = None
-    _metadata: Optional[Metadata] = None
+    metadata: Optional[Metadata] = Field(None, alias="_metadata")
     accidents: Optional[Accidents] = None
     calculate: Optional[Calculate] = None
     car_price: Optional[CountItems] = None
@@ -272,14 +42,27 @@ class ContentData(AvtocodObject):
     pledges_nbki: Optional[CountItems] = None
     utilizations: Optional[Utilizations] = None
     gots_auctions: Optional[GotsAuctions] = None
+    fines: Optional[Fines] = None
 
     commercial_use: Optional[CountItems] = None
     additional_info: Optional[AdditionalInfo] = None
     service_history: Optional[CountItems] = None
     diagnostic_cards: Optional[CountItems] = None
     recall_campaigns: Optional[CountItems] = None
-    identifiers_masked: Optional[IdentifiersMasked] = None
+    identifiers_masked: Optional[Identifiers] = None
     images: Optional[Images] = None
+    market_prices: Optional[MarketPrices] = None
+
+    carfax: Optional[Dict[str, Any]] = None  # TODO
+    registration_actions: Optional[Dict[str, Any]] = None  # TODO
+    restrictions: Optional[Dict[str, Any]] = None  # TODO
+    ads: Optional[Dict[str, Any]] = None  # TODO
+    customs: Optional[Dict[str, Any]] = None  # TODO
+    repairs: Optional[Dict[str, Any]] = None  # TODO
+    leasing: Optional[Dict[str, Any]] = None  # TODO
+    taxi: Optional[Dict[str, Any]] = None  # TODO
+    insurance: Optional[Dict[str, Any]] = None  # TODO
+    leasings: Optional[Dict[str, Any]] = None  # TODO
 
 
 class Content(AvtocodObject):
@@ -303,11 +86,12 @@ class Content(AvtocodObject):
     progress_wait: Optional[int] = None
     progress_error: Optional[int] = None
     report_type_uid: Optional[str] = None
+    last_generation_stat: Optional[LastGenerationStat] = None
 
 
 class Review(AvtocodObject):
     uuid: Optional[str] = None
-    """Unique id of avtocod review"""
+    """Unique id of avtocod reviews_entity"""
 
     client_uuid: Optional[str] = None
     """Id of the client who requested the information"""
@@ -377,4 +161,4 @@ class Review(AvtocodObject):
         return ShortInformation(**payload)  # unpack all the filtered variables
 
 
-__all__ = ["Review"]
+# __all__ = ["Review"] # cuz I don't want to export all types in tests

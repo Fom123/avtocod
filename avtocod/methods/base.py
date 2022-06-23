@@ -72,7 +72,7 @@ class AvtocodMethod(abc.ABC, BaseModel, Generic[AvtocodType]):
         pass
 
     @abc.abstractmethod
-    def build_request(self) -> Union[List[Request], Request]:
+    def build_request(self) -> Request:
         pass
 
     @staticmethod

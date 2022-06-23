@@ -1,5 +1,6 @@
-from .base import UNSET, AvtocodObject, DateUpdate, MutableAvtocodObject, utcformat
+from .base import UNSET, AvtocodObject, MutableAvtocodObject, utcformat
 from .profile import Balance, BalanceItem, LoginData, Token
+from .reusable import DateUpdate
 from .review import (
     BaseStatus,
     Filters,
@@ -21,7 +22,6 @@ from .review import (
 __all__ = [
     "AvtocodObject",
     "MutableAvtocodObject",
-    "DateUpdate",
     "UNSET",
     "utcformat",
     "ReviewGeneration",
@@ -43,4 +43,5 @@ __all__ = [
     "LoginData",
     "BalanceItem",
     "Token",
+    "DateUpdate",
 ]
