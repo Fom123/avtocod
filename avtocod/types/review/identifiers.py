@@ -1,4 +1,4 @@
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Union
 
 from pydantic import Field
 
@@ -16,7 +16,7 @@ class Vehicle(AvtocodObject):
 
 class Identifiers(AvtocodObject):
     vehicle: Optional[Vehicle] = None
-    manufacture: Optional[List[Any]] = Field(default_factory=list)
+    manufacture: Optional[Union[List[Any], Any]] = Field(default_factory=list)
     comment: Optional[str] = Field(None, alias="_comment")
 
 
