@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Mapping, Union, List, Tuple
+from typing import TYPE_CHECKING, Any, List
 
 if TYPE_CHECKING:
-    from avtocod.methods import AvtocodMethod, AvtocodType
+    from avtocod.methods.multirequest import ResultOfBatch
 
 
 class AvtocodException(Exception):
@@ -64,9 +64,9 @@ class ReportGenerationLimitExceeded(AvtocodException):
 
 class PipelineException(AvtocodException):
     def __init__(
-        self,
-        *args: Any,
-        results_and_error: List[Tuple[AvtocodMethod[AvtocodType], Union[AvtocodType, AvtocodException]]],
+            self,
+            *args: Any,
+            results_and_error: List[ResultOfBatch],
     ):
         self.results_and_error = results_and_error
         super().__init__(*args)

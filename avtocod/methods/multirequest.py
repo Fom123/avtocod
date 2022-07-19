@@ -1,7 +1,14 @@
-from typing import Any, List, Dict, Union, Tuple
+import dataclasses
+from typing import Any, List, Union, Tuple
 
 from avtocod.exceptions import AvtocodException, PipelineException
 from avtocod.methods.base import AvtocodMethod, JsonrpcRequest, ResponseType, Data, Request, AvtocodType
+
+
+@dataclasses.dataclass
+class ResultOfBatch:
+    avtocod_method: AvtocodMethod[AvtocodType]
+    result: Union[AvtocodType, AvtocodException]
 
 
 class MultiRequest(AvtocodMethod[Any]):
@@ -17,7 +24,7 @@ class MultiRequest(AvtocodMethod[Any]):
         raise NotImplementedError
 
     def build_request(self) -> Request:
-        return Request.from_batch_jsonrpc(
+        return Request.from_jsonrpc(
             [methods.build_jsonrpc_request() for methods in self.methods],
             http_method=self.http_method
         )
@@ -31,20 +38,20 @@ class MultiRequest(AvtocodMethod[Any]):
         method_data = zip(self.methods, data)
 
         methods_exceptions: List[
-            Tuple[AvtocodMethod[Any], Union[AvtocodException, AvtocodType]]
+            ResultOfBatch
         ] = []
         exception = False
 
         for k, v in method_data:
             try:
-                methods_exceptions.append((k, k.build_response(v)))
+                methods_exceptions.append(ResultOfBatch(k, k.build_response(v)))
             except AvtocodException as e:
                 exception = True
-                methods_exceptions.append((k, e))
+                methods_exceptions.append(ResultOfBatch(k, e))
 
         if exception:
             raise PipelineException(
                 "Got errors when chaining methods", results_and_error=methods_exceptions
             )
 
-        return [methods_exceptions[1] for methods_exceptions in methods_exceptions]
+        return [methods_result.result for methods_result in methods_exceptions]

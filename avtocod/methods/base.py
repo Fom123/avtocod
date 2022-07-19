@@ -111,18 +111,16 @@ class Request(BaseModel):
     """HTTP method."""
 
     @classmethod
-    def from_jsonrpc(cls, request: JsonrpcRequest, http_method: Optional[str] = None) -> Request:
-        return cls(
-            data=request.dict(),
-            http_method=http_method or cls.http_method
+    def from_jsonrpc(cls, request: Union[JsonrpcRequest, List[JsonrpcRequest]],
+                     http_method: Optional[str] = None) -> Request:
+        request = cls(
+            data=request.dict()
+            if not isinstance(request, list)
+            else [request_.dict() for request_ in request]
         )
-
-    @classmethod
-    def from_batch_jsonrpc(cls, requests: List[JsonrpcRequest], http_method: Optional[str] = None) -> Request:
-        return cls(
-            data=[request.dict() for request in requests],
-            http_method=http_method or cls.http_method
-        )
+        if http_method:
+            request.http_method = http_method
+        return request
 
     class Config(BaseConfig):
         arbitrary_types_allowed = True
