@@ -2,6 +2,7 @@ import asyncio
 import logging
 
 from avtocod import AvtoCod
+from avtocod.exceptions import AvtocodException
 from avtocod.session.middlewares.request_logging import RequestLogging
 
 REPORT_ID = "2245ff3c-70b6-41ba-986b-c43a6633a335"
@@ -23,6 +24,9 @@ async def main() -> None:
         report1, report2, upgrade = await (
             pipe.get_report(REPORT_ID).get_report(REPORT_ID2).upgrade_report(REPORT_ID2)
         ).execute(raise_on_error=False)
+
+    assert not isinstance(report1, AvtocodException)
+    assert not isinstance(report2, AvtocodException)
 
     print(report1.information)
     print(report2.information)

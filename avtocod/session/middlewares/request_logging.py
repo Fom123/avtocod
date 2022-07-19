@@ -2,9 +2,9 @@ import logging
 from collections import defaultdict
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Type
 
-from ...methods import AvtocodMethod, Response
-from ...types import AvtocodObject
 from .base import BaseRequestMiddleware, NextRequestMiddlewareType
+from ...methods import AvtocodMethod, AvtocodType
+from ...methods.base import ResponseType
 
 if TYPE_CHECKING:
     from ...avtocod import AvtoCod
@@ -23,10 +23,10 @@ class RequestLogging(BaseRequestMiddleware):
 
     async def __call__(
         self,
-        make_request: NextRequestMiddlewareType,
+        make_request: NextRequestMiddlewareType[AvtocodType],
         avtocod: "AvtoCod",
-        method: AvtocodMethod[AvtocodObject],
-    ) -> Response[AvtocodObject]:
+        method: AvtocodMethod[AvtocodType],
+    ) -> ResponseType[AvtocodType]:
         if type(method) not in self.ignore_methods:
             self.counter[str(method)] += 1
             logger.info(

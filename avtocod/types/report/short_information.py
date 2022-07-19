@@ -1,27 +1,31 @@
-from typing import Optional
+import dataclasses
+from typing import Optional, List, TYPE_CHECKING
 
-from pydantic import BaseModel, validator
+if TYPE_CHECKING:
+    from avtocod.types import QueryType
 
 BASE_AVTOCOD_REPORT_URI = "https://profi.avtocod.ru/report/"
 
 
-class ShortInformation(BaseModel):
+@dataclasses.dataclass
+class ShortInformation:
     uuid: str
-    car_time: Optional[str] = None
-    title: Optional[str] = None
+    car_time: str
+    title: str
+    query_type: "QueryType"
     gos_number: Optional[str] = None
     vin: Optional[str] = None
-    query_type: Optional[str] = None
-    photo: Optional[str] = None
+    photos: Optional[List[str]] = None
     logotype: Optional[str] = None
 
     @property
     def link(self) -> str:
         return BASE_AVTOCOD_REPORT_URI + self.uuid
 
-    @validator("gos_number", "vin")
-    def upper(cls, v: str) -> str:
-        return v.upper()
-
+    def __post_init__(self):
+        if self.vin:
+            self.vin.upper()
+        if self.gos_number:
+            self.gos_number.upper()
 
 __all__ = ["ShortInformation"]

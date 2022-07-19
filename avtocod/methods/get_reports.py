@@ -4,7 +4,7 @@ from avtocod.methods.base import AvtocodMethod, AvtocodType, JsonrpcRequest
 from avtocod.types.report.reports import BaseReport, Filters, Pagination, Reports, Sort
 
 
-class GetReports(AvtocodMethod[List[Reports]]):
+class GetReports(AvtocodMethod[List[BaseReport]]):
     pagination: Optional[Pagination] = None
     sort: Optional[Sort] = None
     filters: Optional[Filters] = None

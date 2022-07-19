@@ -1,12 +1,12 @@
 import dataclasses
-from typing import Any, List, Union, Tuple
+from typing import Any, List, Union, Tuple, Generic
 
 from avtocod.exceptions import AvtocodException, PipelineException
 from avtocod.methods.base import AvtocodMethod, JsonrpcRequest, ResponseType, Data, Request, AvtocodType
 
 
 @dataclasses.dataclass
-class ResultOfBatch:
+class ResultOfBatch(Generic[AvtocodType]):
     avtocod_method: AvtocodMethod[AvtocodType]
     result: Union[AvtocodType, AvtocodException]
 
@@ -38,7 +38,7 @@ class MultiRequest(AvtocodMethod[Any]):
         method_data = zip(self.methods, data)
 
         methods_exceptions: List[
-            ResultOfBatch
+            ResultOfBatch[Any]
         ] = []
         exception = False
 

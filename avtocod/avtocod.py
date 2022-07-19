@@ -209,7 +209,7 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
             self, query: str, query_type: QueryType, request_timeout: Optional[int] = None
     ) -> Awaitable[ReviewGeneration]:
         """
-        Method to create report_entities
+        Method to create report
 
         :param query: car number. Can be vin, body, grz
         :param query_type: the type of the query, must be one of the following VIN/BODY/GRZ
@@ -255,7 +255,7 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
             sort: Optional[Sort] = None,
             filters: Optional[Filters] = None,
             request_timeout: Optional[int] = None,
-    ) -> Awaitable[List[Reports]]:
+    ) -> Awaitable[List[BaseReport]]:
         """
         Get the list of reports, if pagination weren't set,
         then by default it will return 10 reports from first page
@@ -300,5 +300,3 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
 
         call = AdditionalUpgrade(report_uuid=uuid, product_uuid=product_uuid)
         return self(method=call, request_timeout=request_timeout)
-
-

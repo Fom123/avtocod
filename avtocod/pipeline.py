@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 from types import TracebackType
-from typing import List, Tuple, Type, Any, Dict, Optional, Union, cast, overload, Literal, Callable
+from typing import List, Tuple, Type, Any, Dict, Optional, Union, cast, overload, Literal, Callable, Mapping
 
 from avtocod import AvtoCod
 from avtocod.avtocod import PipelineT
@@ -12,7 +12,7 @@ from avtocod.utils.utils import is_pipeline_supported
 
 
 class Pipeline:
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self._avtocod = _AvtoCodReturnMethod(*args, **kwargs)
 
         self._method_stack: List[PipelineMethod] = []
@@ -28,16 +28,16 @@ class Pipeline:
     ) -> None:
         await self.reset()
 
-    def __getattr__(self: PipelineT, item) -> PipelineT:
-        avtocod_attr = getattr(self._avtocod, item, None)
+    def __getattr__(self: PipelineT, item: str) -> PipelineT:
+        avtocod_attr = getattr(self._avtocod, item, lambda: None)
         if not is_pipeline_supported(avtocod_attr):
             raise AttributeError(f"Cannot chain {item}!")
 
-        self._method_stack.append(PipelineMethod(avtocod_attr))
+        self._method_stack.append(PipelineMethod(avtocod_attr))  # type: ignore
 
         return self
 
-    def __call__(self: PipelineT, *args, **kwargs) -> PipelineT:
+    def __call__(self: PipelineT, *args: Any, **kwargs: Any) -> PipelineT:
         last_element = self._method_stack[-1]
         last_element.args = args
         last_element.kwargs = kwargs
@@ -70,7 +70,7 @@ class Pipeline:
                 raise errors[0] from e
             return [method_and_r_or_e.result for method_and_r_or_e in e.results_and_error]
 
-        return cast(List[AvtocodType], responses)
+        return responses
 
     @overload
     async def execute(
@@ -78,6 +78,14 @@ class Pipeline:
             raise_on_error: Literal[True] = True,
             request_timeout: Optional[int] = None
     ) -> List[AvtocodType]:
+        ...
+
+    @overload
+    async def execute(
+            self,
+            raise_on_error: Literal[False],
+            request_timeout: Optional[int] = None
+    ) -> List[Union[AvtocodType, AvtocodException]]:
         ...
 
     async def execute(
@@ -106,12 +114,12 @@ class Pipeline:
 @dataclasses.dataclass
 class PipelineMethod:
     method_callable: Optional[Callable[..., AvtocodMethod[Any]]] = None
-    args: Optional[Tuple[Any, ...]] = dataclasses.field(default_factory=tuple)
-    kwargs: Optional[Dict[str, Any]] = dataclasses.field(default_factory=dict)
+    args: Tuple[Any, ...] = dataclasses.field(default_factory=tuple)
+    kwargs: Mapping[str, Any] = dataclasses.field(default_factory=dict)
 
 
 class _AvtoCodReturnMethod(AvtoCod):
-    def __call__(  # type: ignore[override]
+    def __call__(
             self,
             method: AvtocodMethod[AvtocodType],
             request_timeout: Optional[int] = None,

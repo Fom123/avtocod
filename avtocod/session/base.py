@@ -25,12 +25,12 @@ DEFAULT_TIMEOUT: Final[int] = 30
 # https://github.com/aiogram/aiogram/blob/c7058584219a2138bab44b7760604bf62783aaf5/aiogram/client/session/base.py#L63
 class BaseSession(abc.ABC):
     def __init__(
-        self,
-        api: str = AVTOCOD_API,
-        json_loads: _JsonLoads = json.loads,
-        json_dumps: _JsonDumps = json.dumps,
-        timeout: int = DEFAULT_TIMEOUT,
-        headers: Optional[Dict[str, Any]] = None,
+            self,
+            api: str = AVTOCOD_API,
+            json_loads: _JsonLoads = json.loads,
+            json_dumps: _JsonDumps = json.dumps,
+            timeout: int = DEFAULT_TIMEOUT,
+            headers: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
         :param api: Avtocod API URL
@@ -48,10 +48,10 @@ class BaseSession(abc.ABC):
         self._middlewares: List[RequestMiddlewareType[AvtocodObject]] = []
 
     async def __call__(
-        self,
-        avtocod: "AvtoCod",
-        method: AvtocodMethod[AvtocodType],
-        timeout: Optional[int] = UNSET,
+            self,
+            avtocod: "AvtoCod",
+            method: AvtocodMethod[AvtocodType],
+            timeout: Optional[int] = UNSET,
     ) -> ResponseType[AvtocodType]:
         middleware = partial(self.make_request, timeout=timeout)
         for m in reversed(self._middlewares):
@@ -59,7 +59,7 @@ class BaseSession(abc.ABC):
         return await middleware(avtocod, method)
 
     def check_response(
-        self, method: AvtocodMethod[AvtocodType], content_type: str, content: str
+            self, method: AvtocodMethod[AvtocodType], content_type: str, content: str
     ) -> ResponseType[AvtocodType]:
         if content_type != "application/json":
             raise NetworkError(f'Invalid response with content type {content_type}: "{content}"')
@@ -79,10 +79,10 @@ class BaseSession(abc.ABC):
 
     @abc.abstractmethod
     async def make_request(
-        self,
-        avtocod: "AvtoCod",
-        method: AvtocodMethod[AvtocodType],
-        timeout: Optional[int] = UNSET,
+            self,
+            avtocod: "AvtoCod",
+            method: AvtocodMethod[AvtocodType],
+            timeout: Optional[int] = UNSET,
     ) -> ResponseType[AvtocodType]:
         """
         Making request to avtocod api
@@ -125,13 +125,12 @@ class BaseSession(abc.ABC):
             return data_
 
         if is_batch:
-            return [build(data) for data in request.data] # type: ignore
+            return [build(data) for data in request.data]  # type: ignore
         else:
             return build(request.data)  # type: ignore
 
-
     def middleware(
-        self, middleware: RequestMiddlewareType[AvtocodObject]
+            self, middleware: RequestMiddlewareType[AvtocodObject]
     ) -> RequestMiddlewareType[AvtocodObject]:
         self._middlewares.append(middleware)
         return middleware
@@ -140,9 +139,9 @@ class BaseSession(abc.ABC):
         return self
 
     async def __aexit__(
-        self,
-        exc_type: Optional[Type[BaseException]],
-        exc_value: Optional[BaseException],
-        traceback: Optional[TracebackType],
+            self,
+            exc_type: Optional[Type[BaseException]],
+            exc_value: Optional[BaseException],
+            traceback: Optional[TracebackType],
     ) -> None:
         await self.close()

@@ -66,7 +66,7 @@ class PipelineException(AvtocodException):
     def __init__(
             self,
             *args: Any,
-            results_and_error: List[ResultOfBatch],
+            results_and_error: List[ResultOfBatch[Any]],
     ):
         self.results_and_error = results_and_error
         super().__init__(*args)

@@ -28,7 +28,8 @@ Vin number: {report.information.vin},
 Gos number: {report.information.gos_number},
 Time: {report.information.car_time},
 Link: {report.information.link},
-Photo: {report.information.photo}"""
+Photo: {" ".join(report.information.photos) if report.information.photos else None}
+"""
     )
 
     await avtocod.session.close()  # closing the session, so we won't have errors

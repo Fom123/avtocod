@@ -16,20 +16,20 @@ async def main() -> None:
 
     created_report = await avtocod.create_report(
         "KNAFU611BA5295980", query_type="VIN"
-    )  # creating the report_entities
+    )  # creating the report
     await avtocod.upgrade_report(created_report.uuid)  # upgrading report_entities
 
     while True:
         report = await avtocod.get_report(
             created_report.uuid
-        )  # getting report_entities until it's ready
+        )  # getting the report until it's ready
         if (
             report.is_ready or report.is_completed
-        ):  # checking if report_entities is ready or completed, if yes, exit the cycle
+        ):  # checking if report is ready or completed, if yes, exit the cycle
             break
         await asyncio.sleep(5)
 
-    print(report.information.link)  # now you can have the url of report_entities
+    print(report.information.link)  # now you can have the url of report
 
     await avtocod.session.close()  # closing the session, so we won't have errors
 

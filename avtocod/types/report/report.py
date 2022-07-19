@@ -90,8 +90,8 @@ class Content(AvtocodObject):
 
 
 class Report(AvtocodObject):
-    uuid: Optional[str] = None
-    """Unique id of avtocod report_entities"""
+    uuid: str
+    """Unique id of avtocod report"""
 
     client_uuid: Optional[str] = None
     """Id of the client who requested the information"""
@@ -145,20 +145,17 @@ class Report(AvtocodObject):
         )
 
         if photos:
-            photo = photos[0].uri
+            photos = [photo.uri for photo in photos]
 
-        payload = filter_payload(
-            **locals(),
-            exclude=[
-                "photos",
-                "brand",
-                "tech_data",
-                "vehicle",
-                "identifiers",
-                "content",
-            ],
-        )  # filter all our variables before passing it
-        return ShortInformation(**payload)  # unpack all the filtered variables
-
+        return ShortInformation(
+            uuid=uuid,
+            car_time=car_time,
+            title=title,
+            query_type=query_type,
+            gos_number=gos_number,
+            vin=vin,
+            photos=photos,
+            logotype=logotype
+        )  # unpack all the filtered variables
 
 # __all__ = ["Review"] # cuz I don't want to export all types in tests
