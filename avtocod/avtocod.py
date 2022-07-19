@@ -132,7 +132,12 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
 
         login_data = await avtocod.login(email, password, request_timeout=request_timeout)
 
-        return cls(login_data.token, *args, **kwargs)
+        return cls(
+            login_data.token,
+            session=kwargs.pop("session", avtocod.session),
+            *args,
+            **kwargs
+        )
 
     async def login(
             self, email: str, password: str, request_timeout: Optional[int] = None
