@@ -1,6 +1,6 @@
 from typing import Optional
 
-from avtocod.types import DateUpdate
+from avtocod.types.reusable import DateUpdate
 from avtocod.types.reusable import CountItems
 
 

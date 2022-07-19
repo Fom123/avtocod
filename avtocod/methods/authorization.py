@@ -1,6 +1,6 @@
 from typing import Any, Dict
 
-from avtocod.methods.base import AvtocodMethod, Request
+from avtocod.methods.base import AvtocodMethod, JsonrpcRequest
 from avtocod.types.profile.profile import LoginData
 
 
@@ -12,7 +12,7 @@ class AuthLogin(AvtocodMethod[LoginData]):
 
     __returning__ = LoginData
 
-    def build_request(self) -> Request:
+    def build_jsonrpc_request(self) -> JsonrpcRequest:
         data: Dict[str, Any] = self.dict()
 
-        return Request(method="auth.login", params=data)
+        return JsonrpcRequest(method="auth.login", params=data)

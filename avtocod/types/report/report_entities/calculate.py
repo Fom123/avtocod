@@ -3,7 +3,7 @@ from typing import Optional
 from pydantic import Field
 
 from avtocod.types import AvtocodObject
-from avtocod.types.reusable import Value, PriceWithRegion, Regions
+from avtocod.types.reusable import PriceWithRegion, Regions, Value
 
 
 class Coefficients(AvtocodObject):

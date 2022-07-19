@@ -2,7 +2,7 @@ from typing import Any, List, Optional
 
 from pydantic import Field
 
-from avtocod.types import DateUpdate
+from avtocod.types.reusable import DateUpdate
 from avtocod.types.base import AvtocodObject
 from avtocod.types.reusable import Name, StartEnd, TypeA
 

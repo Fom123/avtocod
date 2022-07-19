@@ -1,9 +1,9 @@
 from .authorization import AuthLogin
-from .base import AvtocodError, AvtocodMethod, AvtocodType, FullError, Request, Response
+from .base import AvtocodError, AvtocodMethod, AvtocodType, FullError, JsonrpcRequest, Response
 from .create_report import CreateReport
 from .get_balance import GetBalance
 from .get_report import GetReport
-from .get_reports_list import GetReviewsList
+from .get_reports import GetReports
 from .get_token import GetToken
 from .multirequest import MultiRequest
 from .order_repair import AdditionalUpgrade
@@ -16,11 +16,11 @@ __all__ = [
     "FullError",
     "AvtocodError",
     "Response",
-    "Request",
+    "JsonrpcRequest",
     "CreateReport",
     "GetBalance",
     "GetReport",
-    "GetReviewsList",
+    "GetReports",
     "GetToken",
     "MultiRequest",
     "AdditionalUpgrade",

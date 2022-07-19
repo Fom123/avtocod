@@ -1,9 +1,9 @@
-from typing import Optional, Any, List
+from typing import Any, List, Optional
 
 from pydantic import Field
 
-from avtocod.types import AvtocodObject, DateUpdate
-from avtocod.types.reusable import DateStartEnd
+from avtocod.types import AvtocodObject
+from avtocod.types.reusable import DateStartEnd, DateUpdate
 
 
 class OwnerHistory(AvtocodObject):

@@ -1,9 +1,9 @@
-from typing import Optional, List, Any, Dict
+from typing import Any, Dict, List, Optional
 
 from pydantic import Field
 
 from avtocod.types import AvtocodObject
-from avtocod.types.reusable import Name, DateReceive
+from avtocod.types.reusable import Name
 
 
 class Category(AvtocodObject):

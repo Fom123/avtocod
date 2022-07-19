@@ -3,13 +3,13 @@ import datetime
 import json
 from functools import partial
 from types import TracebackType
-from typing import TYPE_CHECKING, Any, Callable, Dict, Final, List, Optional, Tuple, Type, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, Final, List, Optional, Type, Union, cast
 
-from avtocod.methods.base import AvtocodMethod, AvtocodType
+from avtocod.methods.base import AvtocodMethod, AvtocodType, Data, Request, ResponseType, JsonLikeDict
 from avtocod.types.base import UNSET, AvtocodObject, utcformat
 
-from ..exceptions import AvtocodException, NetworkError
-from ..methods.multirequest import MultiRequest
+from ..consts import AVTOCOD_API, HEADERS
+from ..exceptions import NetworkError
 from .middlewares.base import RequestMiddlewareType
 
 if TYPE_CHECKING:
@@ -18,16 +18,7 @@ if TYPE_CHECKING:
 _JsonLoads = Callable[..., Any]
 _JsonDumps = Callable[..., str]
 
-ResponsesType = Union[AvtocodType, List[AvtocodType]]
-Exceptions = Tuple[int, AvtocodException]
-
 DEFAULT_TIMEOUT: Final[int] = 30
-AVTOCOD_API: str = "https://api-profi.avtocod.ru/rpc"
-HEADERS: Dict[str, str] = {
-    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.106 Safari/537.36",
-    "Accept": "application/json",
-    "Content-Type": "application/json",
-}
 
 
 # source:
@@ -51,7 +42,8 @@ class BaseSession(abc.ABC):
         self.json_loads = json_loads
         self.json_dumps = json_dumps
         self.timeout = timeout
-        self.headers = headers if headers else HEADERS.copy()
+        self.headers = HEADERS.copy()
+        self.headers.update(headers or {})
 
         self._middlewares: List[RequestMiddlewareType[AvtocodObject]] = []
 
@@ -60,31 +52,15 @@ class BaseSession(abc.ABC):
         avtocod: "AvtoCod",
         method: AvtocodMethod[AvtocodType],
         timeout: Optional[int] = UNSET,
-    ) -> Tuple[ResponsesType[AvtocodType], List[Exceptions]]:
-        middleware = partial(self._make_request, timeout=timeout)
+    ) -> ResponseType[AvtocodType]:
+        middleware = partial(self.make_request, timeout=timeout)
         for m in reversed(self._middlewares):
             middleware = partial(m, middleware)  # type: ignore
         return await middleware(avtocod, method)
 
-    @staticmethod
-    def wrap_multirequest(
-        method: AvtocodMethod[AvtocodType],
-        data: Any,
-    ) -> Any:
-        if isinstance(method, MultiRequest):
-            return data
-        return [data]
-
-    @staticmethod
-    def unwrap_multirequest(method: AvtocodMethod[AvtocodType], data: List[Any]) -> Any:
-        if isinstance(method, MultiRequest):
-            return data
-        if data:
-            return data[0]
-
     def check_response(
         self, method: AvtocodMethod[AvtocodType], content_type: str, content: str
-    ) -> Tuple[Union[List[AvtocodType], AvtocodType], List[Tuple[int, AvtocodException]]]:
+    ) -> ResponseType[AvtocodType]:
         if content_type != "application/json":
             raise NetworkError(f'Invalid response with content type {content_type}: "{content}"')
 
@@ -93,21 +69,7 @@ class BaseSession(abc.ABC):
         except ValueError:
             json_data = {}
 
-        parsed_responses: List[Optional[AvtocodType]] = []
-        errors: List[Tuple[int, AvtocodException]] = []
-
-        for index, data in enumerate(
-            method.build_responses_from_generator(self.wrap_multirequest(method, json_data))
-        ):
-            if isinstance(data, AvtocodException):
-                errors.append((index, data))
-                continue
-            parsed_responses.append(data)
-
-        return (
-            self.unwrap_multirequest(method, parsed_responses),
-            errors,
-        )
+        return method.build_response(json_data)
 
     @abc.abstractmethod
     async def close(self) -> None:
@@ -116,21 +78,14 @@ class BaseSession(abc.ABC):
         """
 
     @abc.abstractmethod
-    async def _make_request(
+    async def make_request(
         self,
         avtocod: "AvtoCod",
         method: AvtocodMethod[AvtocodType],
         timeout: Optional[int] = UNSET,
-    ) -> Tuple[ResponsesType[AvtocodType], List[Exceptions]]:
+    ) -> ResponseType[AvtocodType]:
         """
         Making request to avtocod api
-        Errors code:
-            19004 - Subscription ended
-            22004 - Account banned
-            24001 - Vehicle not found
-            -32603 - User not authenticated
-            -32600 - Invalid Request
-            -32602 - Invalid Argument
         """
 
     def prepare_value(self, value: Any) -> Union[str, int, bool, Any]:
@@ -157,6 +112,23 @@ class BaseSession(abc.ABC):
         elif isinstance(value, dict):
             return {k: self.prepare_value(v) for k, v in value.items() if v is not None}
         return value
+
+    def build_data(self, request: Request) -> Data:
+        is_batch = isinstance(request.data, list)
+
+        def build(request_: JsonLikeDict) -> JsonLikeDict:
+            data_ = {}
+            for key, value in request_.items():
+                if value is None or value is UNSET:
+                    continue
+                data_[key] = self.prepare_value(value)
+            return data_
+
+        if is_batch:
+            return [build(data) for data in request.data] # type: ignore
+        else:
+            return build(request.data)  # type: ignore
+
 
     def middleware(
         self, middleware: RequestMiddlewareType[AvtocodObject]

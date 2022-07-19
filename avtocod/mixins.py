@@ -35,7 +35,7 @@ ContextInstance = TypeVar("ContextInstance")
 
 
 class ContextInstanceMixin(Generic[ContextInstance]):
-    __context_instance: ClassVar[contextvars.ContextVar[ContextInstance]]
+    __context_instance: ClassVar[contextvars.ContextVar[ContextInstance]]  # type: ignore
 
     def __init_subclass__(cls, **kwargs: Any) -> None:
         super().__init_subclass__()

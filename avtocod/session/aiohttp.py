@@ -10,8 +10,7 @@ from aiohttp import BasicAuth, ClientError, ClientSession, TCPConnector
 
 from avtocod.exceptions import NetworkError
 from avtocod.methods.base import AvtocodMethod, AvtocodType
-from avtocod.session.base import BaseSession, Exceptions, ResponsesType
-from avtocod.types.base import UNSET
+from avtocod.session.base import BaseSession, ResponseType
 
 _ProxyBasic = Union[str, Tuple[str, BasicAuth]]
 _ProxyChain = Iterable[_ProxyBasic]
@@ -113,38 +112,29 @@ class AiohttpSession(BaseSession):
         if self._session is not None and not self._session.closed:
             await self._session.close()
 
-    def _build_raw_data(self, request: Dict[str, Any]) -> Dict[str, Any]:
-        data = {}
-        for key, value in request.items():
-            if value is None or value is UNSET:
-                continue
-            data[key] = self.prepare_value(value)
-        return data
-
-    async def _make_request(
+    async def make_request(
         self,
         avtocod: AvtoCod,
         method: AvtocodMethod[AvtocodType],
         timeout: Optional[int] = None,
-    ) -> Tuple[ResponsesType[AvtocodType], List[Exceptions]]:
+    ) -> ResponseType[AvtocodType]:
         session = await self.create_session()
 
-        requests = self.wrap_multirequest(method, method.build_request())
+        request = method.build_request()
 
-        data = [self._build_raw_data(request.dict()) for request in requests]
+        data = self.json_dumps(self.build_data(request))
 
         try:
-            async with session.post(
-                self.api,
+            async with session.request(
+                method=request.http_method,
+                url=self.api,
                 headers=self.headers,
-                data=self.json_dumps(self.unwrap_multirequest(method, data)),
+                data=data,
                 timeout=self.timeout if timeout is None else timeout,
             ) as response:
                 raw_response = await response.text()
-                parsed_data, errors = self.check_response(
-                    method, response.content_type, raw_response
-                )
-                return parsed_data, errors
+                response = self.check_response(method, response.content_type, raw_response)
+                return response
         except asyncio.TimeoutError:
             raise NetworkError("Request timeout error")
         except ClientError as e:

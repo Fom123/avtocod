@@ -1,10 +1,10 @@
-from avtocod.types.review.reviews_entity.identifiers import Identifiers, Vehicle
-from avtocod.types.review.reviews_entity.tech_data import TechData
+from .report_entities.identifiers import Identifiers, Vehicle
+from .report_entities.tech_data import TechData
 
 from .generation import ReviewGeneration, ReviewUpgrade
 from .query_type import QueryNumber, QueryType
-from .review import Review
-from .reviews_list import BaseStatus, Filters, Pagination, Query, ReviewList, Sort
+from .report import Report
+from .reports import BaseStatus, Filters, Pagination, Query, Reports, Sort
 from .short_information import ShortInformation
 
 __all__ = [
@@ -14,8 +14,8 @@ __all__ = [
     "Identifiers",
     "QueryType",
     "QueryNumber",
-    "Review",
-    "ReviewList",
+    "Report",
+    "Reports",
     "BaseStatus",
     "Query",
     "Pagination",

@@ -1,20 +1,20 @@
-from typing import Optional, Any, List, Union
+from typing import Any, List, Optional, Union
 
 from pydantic import Field
 
-from avtocod.types import AvtocodObject, DateUpdate
+from avtocod.types import AvtocodObject
+from avtocod.types.report.report_entities.metadata import Metadata
+from avtocod.types.report.report_entities.tech_data import Engine
 from avtocod.types.reusable import (
-    TypeA,
-    MaxMin,
+    Count,
     DatePublish,
-    TypeAndTypeId,
+    MaxMin,
     Name,
     PositionAndPositionId,
-    Count,
     PriceWithRegion,
+    TypeA,
+    TypeAndTypeId, DateUpdate,
 )
-from avtocod.types.review.reviews_entity.metadata import Metadata
-from avtocod.types.review.reviews_entity.tech_data import Engine
 
 
 class GeoAd(AvtocodObject):

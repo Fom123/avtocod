@@ -1,4 +1,4 @@
-from typing import Optional, List, Any
+from typing import Any, List, Optional
 
 from avtocod.types import AvtocodObject
 

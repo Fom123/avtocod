@@ -4,26 +4,26 @@ from typing import Any, Dict, List, Optional
 from pydantic import Field
 
 from avtocod.types.base import AvtocodObject
+from avtocod.types.report.report_entities.accidents import Accidents, Pledges
+from avtocod.types.report.report_entities.additional_info import AdditionalInfo
+from avtocod.types.report.report_entities.calculate import Calculate
+from avtocod.types.report.report_entities.fines import Fines
+from avtocod.types.report.report_entities.gots_action import GotsAuctions
+from avtocod.types.report.report_entities.identifiers import Identifiers
+from avtocod.types.report.report_entities.last_generation_stat import LastGenerationStat
+from avtocod.types.report.report_entities.market_price import MarketPrices
+from avtocod.types.report.report_entities.metadata import Metadata
+from avtocod.types.report.report_entities.mileages import Mileages
+from avtocod.types.report.report_entities.owner import Ownership
+from avtocod.types.report.report_entities.photos import Images
+from avtocod.types.report.report_entities.query import Query
+from avtocod.types.report.report_entities.state import State
+from avtocod.types.report.report_entities.stealings import Stealings
+from avtocod.types.report.report_entities.tech_data import TechData
+from avtocod.types.report.report_entities.utilization import Utilizations
+from avtocod.types.report.short_information import ShortInformation
 from avtocod.types.reusable import CountItems
-from avtocod.types.review.reviews_entity.accidents import Accidents, Pledges
-from avtocod.types.review.reviews_entity.additional_info import AdditionalInfo
-from avtocod.types.review.reviews_entity.calculate import Calculate
-from avtocod.types.review.reviews_entity.fines import Fines
-from avtocod.types.review.reviews_entity.gots_action import GotsAuctions
-from avtocod.types.review.reviews_entity.identifiers import Identifiers
-from avtocod.types.review.reviews_entity.last_generation_stat import LastGenerationStat
-from avtocod.types.review.reviews_entity.market_price import MarketPrices
-from avtocod.types.review.reviews_entity.metadata import Metadata
-from avtocod.types.review.reviews_entity.mileages import Mileages
-from avtocod.types.review.reviews_entity.owner import Ownership
-from avtocod.types.review.reviews_entity.photos import Images
-from avtocod.types.review.reviews_entity.query import Query
-from avtocod.types.review.reviews_entity.state import State
-from avtocod.types.review.reviews_entity.stealings import Stealings
-from avtocod.types.review.reviews_entity.tech_data import TechData
-from avtocod.types.review.reviews_entity.utilization import Utilizations
-from avtocod.types.review.short_information import ShortInformation
-from avtocod.utils import filter_payload, rgetattr
+from avtocod.utils.utils import filter_payload, rgetattr
 
 
 class ContentData(AvtocodObject):
@@ -89,9 +89,9 @@ class Content(AvtocodObject):
     last_generation_stat: Optional[LastGenerationStat] = None
 
 
-class Review(AvtocodObject):
+class Report(AvtocodObject):
     uuid: Optional[str] = None
-    """Unique id of avtocod reviews_entity"""
+    """Unique id of avtocod report_entities"""
 
     client_uuid: Optional[str] = None
     """Id of the client who requested the information"""

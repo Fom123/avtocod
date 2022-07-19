@@ -1,9 +1,9 @@
-from typing import Any, Optional, List
+from typing import Any, List, Optional
 
 from pydantic import Field
 
-from avtocod.types import AvtocodObject, DateUpdate
-from avtocod.types.reusable import Issued
+from avtocod.types import AvtocodObject
+from avtocod.types.reusable import Issued, DateUpdate
 
 
 class PhotoItemVehicle(AvtocodObject):

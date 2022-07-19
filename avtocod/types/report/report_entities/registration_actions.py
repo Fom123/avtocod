@@ -1,10 +1,10 @@
-from typing import Optional, List, Any
+from typing import Any, List, Optional
 
 from pydantic import Field
 
-from avtocod.types import AvtocodObject, DateUpdate
-from avtocod.types.review.reviews_entity.identifiers import Vehicle
-from avtocod.types.reusable import StartEnd, DateStartEnd
+from avtocod.types import AvtocodObject
+from avtocod.types.report.report_entities.identifiers import Vehicle
+from avtocod.types.reusable import DateStartEnd, DateUpdate
 
 
 class Geo(AvtocodObject):

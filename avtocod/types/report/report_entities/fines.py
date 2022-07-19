@@ -1,9 +1,9 @@
-from typing import Optional, List, Any
+from typing import Any, List, Optional
 
 from pydantic import Field
 
 from avtocod.types import AvtocodObject
-from avtocod.types.reusable import DateEvent, DateUpdate, Total, Name, DateEndPercent
+from avtocod.types.reusable import DateEndPercent, DateEvent, DateUpdate, Name, Total
 
 
 class Location(AvtocodObject):

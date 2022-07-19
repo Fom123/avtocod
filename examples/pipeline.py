@@ -24,6 +24,8 @@ async def main() -> None:
             pipe.get_report(REPORT_ID).get_report(REPORT_ID2).upgrade_report(REPORT_ID2)
         ).execute(raise_on_error=False)
 
+
+
     print(report1.information)
     print(report2.information)
     print(upgrade)

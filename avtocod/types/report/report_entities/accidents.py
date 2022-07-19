@@ -1,9 +1,9 @@
-from typing import Optional, List, Any, Dict
+from typing import Any, Dict, List, Optional
 
 from pydantic import Field
 
-from avtocod.types import AvtocodObject, DateUpdate
-from avtocod.types.reusable import Name, DateDate, Total
+from avtocod.types import AvtocodObject
+from avtocod.types.reusable import DateDate, Name, Total, DateUpdate
 
 
 class Geo(AvtocodObject):

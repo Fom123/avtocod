@@ -51,7 +51,7 @@ class BaseStatus(AvtocodObject):
     value: int
 
 
-class ReviewsList(AvtocodObject):
+class BaseReport(AvtocodObject):
     uuid: str
 
     query: Optional[Query] = None
@@ -85,9 +85,9 @@ class ReviewsList(AvtocodObject):
     updated_at: datetime
 
 
-class ReviewList(AvtocodObject):
+class Reports(AvtocodObject):
     pagination: Optional[Pagination] = None
-    reports_list: List[ReviewsList]
+    reports_list: List[BaseReport]
 
 
-__all__ = ["ReviewList", "BaseStatus", "Query", "Pagination", "Sort", "Filters", "ReviewsList"]
+__all__ = ["Reports", "BaseReport", "BaseStatus", "Query", "Pagination", "Sort", "Filters"]

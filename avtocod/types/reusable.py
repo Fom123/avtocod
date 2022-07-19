@@ -1,12 +1,12 @@
 from datetime import datetime
-from typing import Optional, Any, List
+from typing import Any, List, Optional
 
 from pydantic import Field
 
-from avtocod.types import AvtocodObject
+from avtocod.types.base import AvtocodObject
 
 
-class GenericDateTimse(AvtocodObject):
+class GenericDateTime(AvtocodObject):
     """"""
 
 

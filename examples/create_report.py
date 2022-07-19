@@ -20,7 +20,9 @@ async def main() -> None:
     )  # creating the report
 
     while True:
-        report = await avtocod.get_report(created_report.uuid)  # getting report until it's ready
+        report = await avtocod.get_report(
+            created_report.uuid
+        )  # getting report until it's ready
         if (
             report.is_ready or report.is_completed
         ):  # checking if report is ready or completed, if yes, exit the cycle

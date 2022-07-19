@@ -1,7 +1,18 @@
 import functools
-from typing import Any, Dict, List, Optional, TypeVar, Union, overload
+from typing import Any, Dict, List, Optional, TypeVar, Union, overload, Callable, Final
 
 T = TypeVar("T")
+F = TypeVar("F", bound=Callable[..., Any])
+PIPELINE_IS_SUPPORTED: Final[str] = "pipeline_support"
+
+
+def pipeline_support(f: F) -> F:
+    setattr(f, PIPELINE_IS_SUPPORTED, True)
+    return f
+
+
+def is_pipeline_supported(f: Callable[..., Any]) -> bool:
+    return getattr(f, PIPELINE_IS_SUPPORTED, False)
 
 
 @overload

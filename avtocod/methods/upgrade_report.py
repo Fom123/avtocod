@@ -1,7 +1,7 @@
 from typing import Any, Dict
 
-from avtocod.methods.base import AvtocodMethod, Request
-from avtocod.types.review.generation import ReviewUpgrade
+from avtocod.methods.base import AvtocodMethod, JsonrpcRequest
+from avtocod.types.report.generation import ReviewUpgrade
 
 
 class UpgradeReport(AvtocodMethod[ReviewUpgrade]):
@@ -9,7 +9,7 @@ class UpgradeReport(AvtocodMethod[ReviewUpgrade]):
 
     __returning__ = ReviewUpgrade
 
-    def build_request(self) -> Request:
+    def build_jsonrpc_request(self) -> JsonrpcRequest:
         data: Dict[str, Any] = self.dict()
 
-        return Request(method="report.upgrade", params=data)
+        return JsonrpcRequest(method="report.upgrade", params=data)
