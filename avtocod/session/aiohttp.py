@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple, Type, Union, cast
 
 from aiohttp import BasicAuth, ClientError, ClientSession, TCPConnector
@@ -18,6 +19,8 @@ _ProxyType = Union[_ProxyChain, _ProxyBasic]
 
 if TYPE_CHECKING:
     from avtocod import AvtoCod
+
+logger = logging.getLogger(__name__)
 
 
 def _retrieve_basic(basic: _ProxyBasic) -> Dict[str, Any]:
@@ -132,7 +135,12 @@ class AiohttpSession(BaseSession):
                 data=data,
                 timeout=self.timeout if timeout is None else timeout,
             ) as response:
+                logger.debug(
+                    "Making http request: %s to url %s with headers %s, data %s, timeout %s",
+                    request.http_method, self.api, self.headers, data, self.timeout
+                )
                 raw_response = await response.text()
+                logger.debug("Got response: %s", raw_response)
                 response = self.check_response(method, response.content_type, raw_response)
                 return response
         except asyncio.TimeoutError:

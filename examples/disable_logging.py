@@ -12,7 +12,7 @@ async def main() -> None:
         format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
     )  # setup logging
     # set logging level to ERROR, so we won't log missing attributes
-    logging.getLogger("avtocod").setLevel(logging.ERROR)  # whole library
+    logging.getLogger("avtocod").setLevel(logging.DEBUG)  # whole library
     # or only about the missing attributes
     # logging.getLogger("avtocod.types.base").setLevel(logging.ERROR)
 

@@ -15,7 +15,6 @@ class MultiRequest(AvtocodMethod[Any]):
     """Methods to be executed once at a time"""
 
     methods: List[AvtocodMethod[Any]]
-    http_method: str = "POST"
 
     __returning__ = List[Any]
 
