@@ -1,5 +1,5 @@
 import functools
-from typing import Any, Dict, List, Optional, TypeVar, Union, overload, Callable, Final
+from typing import Any, Dict, List, Optional, TypeVar, Union, overload, Callable, Final, Iterable
 
 T = TypeVar("T")
 F = TypeVar("F", bound=Callable[..., Any])
@@ -57,10 +57,17 @@ def filter_payload(exclude: Optional[List[str]] = None, **kwargs: Any) -> Dict[A
     dictionary = {}
     for key, value in kwargs.items():
         if (
-            key not in exclude + ["self", "cls", "kwargs", "args"]
-            and value is not None
-            and not key.startswith("_")
+                key not in exclude + ["self", "cls", "kwargs", "args"]
+                and value is not None
+                and not key.startswith("_")
         ):
             dictionary[key] = value
 
     return dictionary
+
+
+def chunks(l: List[T], n: int) -> Iterable[List[T]]:
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(l), n):
+        yield l[i:i + n]
+

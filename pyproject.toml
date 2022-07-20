@@ -87,3 +87,9 @@ known_third_party = [
     "pydantic",
     "pytest"
 ]
+
+
+[tool.pytest.ini_options]
+markers = [
+    "integration: run integration tests (deselect with '-m \"not integration\"')",
+]

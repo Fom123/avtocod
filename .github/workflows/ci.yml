@@ -65,14 +65,13 @@ jobs:
 #        run: |
 #          poetry run mypy avtocod examples
 
-      - name: Run examples # until I write auto tests:)
+      - name: Run Tests (unit)
         run: |
-          poetry run python examples/pipeline.py
-          poetry run python examples/disable_logging.py
+          poetry run pytest --cov=avtocod --cov-config .coveragerc --cov-report=xml -m "not integration"
 
-#      - name: Test with pytest
-#        run: |
-#          poetry run pytest -p no:warnings --cov=avtocod --cov-config .coveragerc --cov-report=xml
+      - name: Run Tests (integration)
+      - run: |
+          poetry run pytest --cov=avtocod --cov-config .coveragerc --cov-report=xml -m "integration"
 
       - uses: codecov/codecov-action@v1
         with:
