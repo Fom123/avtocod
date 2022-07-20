@@ -2,8 +2,8 @@ from typing import Any, Dict
 
 from pydantic import validator
 
-from avtocod.methods.base import AvtocodMethod, Request
-from avtocod.types.review.generation import ReviewGeneration
+from avtocod.methods.base import AvtocodMethod, JsonrpcRequest
+from avtocod.types.report.generation import ReviewGeneration
 
 
 class CreateReport(AvtocodMethod[ReviewGeneration]):
@@ -19,6 +19,6 @@ class CreateReport(AvtocodMethod[ReviewGeneration]):
             raise TypeError("Incorrect type!")
         return v
 
-    def build_request(self) -> Request:
+    def build_jsonrpc_request(self) -> JsonrpcRequest:
         data: Dict[str, Any] = self.dict()
-        return Request(method="report.create", params=data)
+        return JsonrpcRequest(method="report.create", params=data)

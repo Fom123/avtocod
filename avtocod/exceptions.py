@@ -1,3 +1,11 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, List
+
+if TYPE_CHECKING:
+    from avtocod.methods.multirequest import ResultOfBatch
+
+
 class AvtocodException(Exception):
     pass
 
@@ -38,6 +46,10 @@ class ReportNotFound(AvtocodException):
     pass
 
 
+class InternalError(AvtocodException):
+    pass
+
+
 class ValidationError(AvtocodException):
     pass
 
@@ -48,3 +60,13 @@ class InvalidArgument(AvtocodException):
 
 class ReportGenerationLimitExceeded(AvtocodException):
     pass
+
+
+class PipelineException(AvtocodException):
+    def __init__(
+        self,
+        *args: Any,
+        results_and_error: List[ResultOfBatch[Any]],
+    ):
+        self.results_and_error = results_and_error
+        super().__init__(*args)

@@ -1,45 +1,55 @@
 from __future__ import annotations
 
+import asyncio
 import logging
-import typing
-import warnings
-from types import TracebackType
-from typing import Any, Awaitable, Final, Generator, List, Optional, Tuple, Type, Union, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    AsyncGenerator,
+    Awaitable,
+    List,
+    Optional,
+    Type,
+    TypeVar,
+    overload,
+)
 
-from .exceptions import AvtocodException, ValidationError
+from .exceptions import ValidationError
 from .methods.authorization import AuthLogin
-from .methods.base import AvtocodMethod, AvtocodType
+from .methods.base import AvtocodMethod, AvtocodType, ResponseType
 from .methods.create_report import CreateReport
 from .methods.get_balance import GetBalance
 from .methods.get_report import GetReport
-from .methods.get_reports_list import GetReviewsList
+from .methods.get_reports import GetReports
 from .methods.get_token import GetToken
-from .methods.multirequest import MultiRequest
 from .methods.order_repair import AdditionalUpgrade
 from .methods.upgrade_report import UpgradeReport
 from .mixins import ContextInstanceMixin, DataMixin
 from .session.aiohttp import AiohttpSession
 from .session.base import BaseSession
 from .types.profile.profile import BalanceItem, LoginData
-from .types.review.generation import ReviewGeneration, ReviewUpgrade
-from .types.review.query_type import QueryType
-from .types.review.review import Review
-from .types.review.reviews_list import Filters, Pagination, ReviewsList, Sort
+from .types.report.generation import ReviewGeneration, ReviewUpgrade
+from .types.report.query_type import QueryType
+from .types.report.report import Report
+from .types.report.reports import BaseReport, Filters, Pagination, Sort
+from .utils.utils import pipeline_support
 
 logger = logging.getLogger(__name__)
 
-MAX_REPORT_LIMIT: Final[int] = 20
-POLLING_DELAY: Final[int] = 5
-POLLING_ERROR: Final[int] = 30
+AvtoCodT = TypeVar("AvtoCodT", bound="AvtoCod")
+PipelineT = TypeVar("PipelineT", bound="Pipeline")
+
+if TYPE_CHECKING:
+    from .pipeline import Pipeline
 
 
 class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
     def __init__(
         self,
         token: Optional[str] = None,
+        *,
         session: Optional[BaseSession] = None,
     ):
-
         self._token = token
         self.session = session if session is not None else AiohttpSession()
 
@@ -64,59 +74,48 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
             return False
         return hash(self) == hash(other)
 
-    async def __call__(
+    @overload
+    def __call__(
         self,
         method: AvtocodMethod[AvtocodType],
         request_timeout: Optional[int] = None,
-    ) -> AvtocodType:
+    ) -> Awaitable[AvtocodType]:
+        ...
+
+    @overload
+    def __call__(
+        self,
+        method: Any,
+        request_timeout: Optional[int] = None,
+    ) -> Awaitable[ResponseType[AvtocodType]]:
+        ...
+
+    def __call__(
+        self,
+        method: AvtocodMethod[AvtocodType],
+        request_timeout: Optional[int] = None,
+    ) -> Awaitable[ResponseType[AvtocodType]]:
         """
         Call API method
         :param method:
         :return:
         """
-        response, errors = await self.session(method, timeout=request_timeout)
-        # cuz avtocod instances can return only one response. Made for pipeline compatibility
-        if errors:
-            raise errors[0][1]
-        return cast(AvtocodType, response)
+        return self.session(self, method, timeout=request_timeout)
 
     @property
     def token(self) -> Optional[str]:
         return self._token
 
-    @token.setter
-    def token(self, token: str) -> None:
-        warnings.warn(
-            "`AvtoCod.token = ...` is deprecated and will be removed in version 0.3.0. "
-            "Create new instance of `AvtoCod` instead",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        self._token = token
-        self.validate_token()
-        self._update_auth_headers()
-
-    @token.deleter
-    def token(self) -> None:
-        warnings.warn(
-            "`del AvtoCod.token` is deprecated and will be removed in version 0.3.0. "
-            "Create new instance of `AvtoCod` instead",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        self._token = None
-        self._update_auth_headers()
-
     def _update_auth_headers(self) -> None:
         self.session.headers["Authorization"] = f"Bearer {self._token}"
 
     def validate_token(self) -> bool:
-        if not isinstance(self._token, str):
+        if not isinstance(self.token, str):
             raise ValidationError(
-                "Token is invalid! " f"It must be 'str' type instead of {type(self._token)} type."
+                "Token is invalid! " f"It must be 'str' type instead of {type(self.token)} type."
             )
 
-        if any(x.isspace() for x in self._token):
+        if any(x.isspace() for x in self.token):
             raise ValidationError("Token is invalid! It can't contains spaces.")
         return True
 
@@ -125,34 +124,50 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
         Return a new pipeline object that can queue multiple commands for
         later execution.
         """
-        return Pipeline(token=self.token, session=self.session)
+        from .pipeline import Pipeline
+
+        return Pipeline(session=self.session, token=self.token)
 
     @classmethod
     async def from_credentials(
-        cls,
+        cls: Type[AvtoCodT],
         email: str,
         password: str,
         request_timeout: Optional[int] = None,
         *args: Any,
         **kwargs: Any,
-    ) -> AvtoCod:
+    ) -> AvtoCodT:
+        """Method for creating avtocod instance from credentials
+
+        :param email: email of avtocod account
+        :param password: password of avtocod account
+        :param request_timeout: timeout for request
+        :param args: args for creating instance
+        :param kwargs: kwargs for creating instance
+
+        :return: avtocod instance
+        """
+
         avtocod = cls(*args, **kwargs)
         
         login_data = await avtocod.login(email, password, request_timeout=request_timeout)
 
-        return cls(login_data.token, *args, **kwargs)
-
-    @classmethod
-    async def from_token(cls, token: str, *args: Any, **kwargs: Any) -> AvtoCod:
-        """
-        Same as `AvtoCod(token)`
-        """
-        return cls(token, *args, **kwargs)
+        return cls(
+            login_data.token, session=kwargs.pop("session", avtocod.session), *args, **kwargs
+        )
 
     async def login(
         self, email: str, password: str, request_timeout: Optional[int] = None
     ) -> LoginData:
-        """Login in avtocod account using credentials"""
+        """
+        Login in avtocod account using credentials
+
+        :param email: email of avtocod account
+        :param password: password of avtocod account
+        :param request_timeout: timeout for request
+
+        :return: LoginData
+        """
         call = AuthLogin(email=email, password=password)
 
         data = await self(method=call, request_timeout=request_timeout)
@@ -161,11 +176,57 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
 
         return data
 
+    async def iter_reports(
+        self,
+        sort: Optional[Sort] = None,
+        filters: Optional[Filters] = None,
+        limit: int = 0,
+        delay_between_request: int = 5,
+        request_timeout: Optional[int] = None,
+    ) -> AsyncGenerator[BaseReport, None]:
+        """
+        Iterate over all reports in avtocod account
+
+        :param sort: sort by this field
+        :param filters: filter by this field
+        :param limit: limit of reports to fetch
+        :param delay_between_request: delay between requests
+        :param request_timeout: timeout for request
+        """
+        current = 0
+        total = limit or (1 << 31) - 1
+        limit = min(20, total)
+        page = 1
+
+        while True:
+            reports = await self.get_reports(
+                pagination=Pagination(page=page, limit=limit),
+                sort=sort,
+                filters=filters,
+                request_timeout=request_timeout,
+            )
+            if not reports:
+                break
+
+            page += 1
+
+            for report in reports:
+                yield report
+                current += 1
+
+                if current >= total:
+                    return
+
+            if delay_between_request:
+                await asyncio.sleep(delay_between_request)
+
+    @pipeline_support
     def get_token(self, request_timeout: Optional[int] = None) -> Awaitable[str]:
-        """Idk what is that, something like temporary token? Expires in 30 second and cannot be used for api calls"""
+        """TODO: what is this method for?"""
         call = GetToken()
         return self(method=call, request_timeout=request_timeout)
 
+    @pipeline_support
     def create_report(
         self, query: str, query_type: QueryType, request_timeout: Optional[int] = None
     ) -> Awaitable[ReviewGeneration]:
@@ -174,169 +235,90 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
 
         :param query: car number. Can be vin, body, grz
         :param query_type: the type of the query, must be one of the following VIN/BODY/GRZ
-        :param request_timeout: timeout of how much request can handle
+        :param request_timeout: timeout for request
 
-        :return: uuid of review on success
+        :return: Awaitable[ReviewGeneration]
         """
         call = CreateReport(query=query, type=query_type)
         return self(method=call, request_timeout=request_timeout)
 
-    def get_report(self, uuid: str, request_timeout: Optional[int] = None) -> Awaitable[Review]:
+    @pipeline_support
+    def get_report(self, uuid: str, request_timeout: Optional[int] = None) -> Awaitable[Report]:
         """
         Get the avtocod report, can be used without authorization.
 
         :param uuid: Unique id of report
-        :param request_timeout: timeout of how much request can handle
+        :param request_timeout: timeout for request
+
+        :return: Awaitable[Report]
         """
         call = GetReport(uuid=uuid)
         return self(method=call, request_timeout=request_timeout)
 
+    @pipeline_support
     def upgrade_report(
         self, uuid: str, request_timeout: Optional[int] = None
     ) -> Awaitable[ReviewUpgrade]:
+        """Upgrade the report to the full version
+
+        :param uuid: Unique id of report
+        :param request_timeout: timeout for request
+
+        :return: Awaitable[ReviewUpgrade]
+        """
+
         call = UpgradeReport(uuid=uuid)
         return self(method=call, request_timeout=request_timeout)
 
-    def get_reports_list(
+    @pipeline_support
+    def get_reports(
         self,
         pagination: Optional[Pagination] = None,
         sort: Optional[Sort] = None,
         filters: Optional[Filters] = None,
         request_timeout: Optional[int] = None,
-    ) -> Awaitable[List[ReviewsList]]:
+    ) -> Awaitable[List[BaseReport]]:
         """
         Get the list of reports, if pagination weren't set,
         then by default it will return 10 reports from first page
+
+        :param pagination: pagination object
+        :param sort: sort object
+        :param filters: filters object
+        :param request_timeout: timeout for request
+
+        :return: Awaitable[List[Reports]]
         """
-        call = GetReviewsList(pagination=pagination, sort=sort, filters=filters)
+        call = GetReports(pagination=pagination, sort=sort, filters=filters)
         return self(method=call, request_timeout=request_timeout)
 
-    async def get_balance(self, request_timeout: Optional[int] = None) -> Tuple[int, str]:
-        """
-        Get the balance and account id information
-
-        :return: tuple of balance and account_id
-        """
-        warnings.warn(
-            "`AvtoCod.get_balance(...)` is deprecated and will be removed in 0.3.0, "
-            "use `AvtoCod.get_account_info(...) instead`",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        call = GetBalance()
-        balance: List[BalanceItem] = await self(method=call, request_timeout=request_timeout)
-
-        return balance[0].count, balance[0].product_uuid
-
+    @pipeline_support
     def get_account_info(
         self, request_timeout: Optional[int] = None
     ) -> Awaitable[List[BalanceItem]]:
         """
-        Get the list of balance and account id information
+        Get the account info, can be used without authorization.
 
-        :return: tuple of balance and account_id
+        :param request_timeout: timeout of how much request can handle
+
+        :return: Awaitable[List[BalanceItem]]
         """
         call = GetBalance()
         return self(method=call, request_timeout=request_timeout)
 
-    async def upgrade_repair(
-        self, uuid: str, request_timeout: Optional[int] = None
-    ) -> ReviewUpgrade:
-        warnings.warn(
-            "`AvtoCod.upgrade_repair(...)` is deprecated and will be removed in version 0.3.0. "
-            "Use `AvtoCod.upgrade_review_repair(...)` instead",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        balance, account_id = await self.get_balance()
-        call = AdditionalUpgrade(report_uuid=uuid, product_uuid=account_id)
-        return await self(method=call, request_timeout=request_timeout)
-
+    @pipeline_support
     def upgrade_review_repair(
         self, uuid: str, product_uuid: str, request_timeout: Optional[int] = None
     ) -> Awaitable[ReviewUpgrade]:
-        """ """
+        """Order the repair of the report
+
+        :param uuid: Unique id of report
+        :param product_uuid: Unique id of product which have enough balance
+        (can be found in the account_info)
+        :param request_timeout: timeout for request
+
+        :return: Awaitable[ReviewUpgrade]
+        """
+
         call = AdditionalUpgrade(report_uuid=uuid, product_uuid=product_uuid)
         return self(method=call, request_timeout=request_timeout)
-
-
-class Pipeline(AvtoCod):
-    def __init__(self, *, token: Optional[str] = None, session: Optional[BaseSession] = None):
-        super().__init__(token, session)
-
-        self.method_stack: List[Tuple[AvtocodMethod[Any], Optional[int]]] = []
-
-    @typing.no_type_check
-    def __call__(
-        self,
-        method: AvtocodMethod[Any],
-        request_timeout: Optional[int] = None,
-    ) -> Pipeline:
-        self.method_stack.append((method, request_timeout))
-        return self
-
-    async def __aenter__(self) -> Pipeline:
-        return self
-
-    async def __aexit__(
-        self,
-        exc_type: Optional[Type[BaseException]],
-        exc_value: Optional[BaseException],
-        traceback: Optional[TracebackType],
-    ) -> None:
-        await self.reset()
-
-    async def _async_self(self) -> Pipeline:
-        return self
-
-    def __await__(self) -> Generator[Any, None, Pipeline]:
-        return self._async_self().__await__()
-
-    def __len__(self) -> int:
-        return len(self.method_stack)
-
-    def __bool__(self) -> bool:
-        return True
-
-    async def reset(self) -> None:
-        self.method_stack = []
-
-    async def _execute_transaction(
-        self,
-        methods: List[AvtocodMethod[AvtocodType]],
-        raise_on_error: bool = False,
-        request_timeout: Optional[int] = None,
-    ) -> List[Union[AvtocodType, AvtocodException]]:
-
-        responses, errors = await self.session(
-            MultiRequest(methods=methods), timeout=request_timeout
-        )
-
-        assert isinstance(responses, List)
-        # put any api errors into the response
-        for i, e in errors:
-            responses.insert(i, e)
-
-        if raise_on_error and errors:
-            raise errors[0][1]
-
-        return cast(List[Union[AvtocodType, AvtocodException]], responses)
-
-    async def execute(
-        self, raise_on_error: bool = True, request_timeout: Optional[int] = None
-    ) -> List[Union[AvtocodType, AvtocodException]]:
-        """Execute all the commands in the current pipeline"""
-        if not self.method_stack:
-            return []
-
-        if request_timeout is None:
-            request_timeout = min(
-                (timeout for request, timeout in self.method_stack if isinstance(timeout, int)),
-                default=self.session.timeout,
-            )
-        methods = [method for method, timeout in self.method_stack]
-
-        try:
-            return await self._execute_transaction(methods, raise_on_error, request_timeout)
-        finally:
-            await self.reset()

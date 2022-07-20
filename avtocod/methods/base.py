@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import abc
-import uuid
 from typing import Any, Dict, Generator, Generic, List, Optional, TypeVar, Union, cast
 
 from pydantic import BaseConfig, BaseModel, Extra, Field
@@ -9,6 +10,7 @@ from avtocod.exceptions import (
     AccountBanned,
     AvtocodException,
     CouldNotFindCar,
+    InternalError,
     InvalidArgument,
     InvalidRequest,
     NotEnoughRepairBalance,
@@ -18,9 +20,14 @@ from avtocod.exceptions import (
     SubscriptionNotFound,
     Unauthorized,
 )
-from avtocod.utils import wrap_as_list
+from avtocod.utils import generate_id
+from avtocod.utils.utils import wrap_as_list
 
 AvtocodType = TypeVar("AvtocodType", bound=Any)
+ResponseType = Union[Any, AvtocodType, List[AvtocodType]]
+JsonLikeDict = Dict[str, Any]
+Data = Union[JsonLikeDict, List[JsonLikeDict]]
+
 _sentinel = object()
 
 
@@ -28,13 +35,13 @@ class FullError(BaseModel):
     type: Optional[str] = None
     exp_class: Optional[str] = Field(alias="class", default=None)
     message: Optional[str] = None
-    code: Optional[int] = None
+    code: Union[Optional[int], Optional[str]] = None
 
 
 class AvtocodError(BaseModel):
     code: int
     message: str
-    data: Union[List[FullError], Optional[FullError]] = None
+    data: Union[Optional[List[FullError]], Optional[FullError]] = None
 
 
 class Response(GenericModel, Generic[AvtocodType]):
@@ -43,42 +50,13 @@ class Response(GenericModel, Generic[AvtocodType]):
     error: Optional[AvtocodError] = None
     id: str
 
+    def check_error(self) -> Response[AvtocodType]:
+        error = self.error
 
-class Request(BaseModel):
-    """Generate method to avtocod json_rpc 2.0 API."""
+        if not error:
+            return self
 
-    id: str = str(uuid.uuid4())
-    """Unique id of every request"""
-    method: str
-    """json_rpc method"""
-    params: Optional[Dict[str, Any]]
-    """dictionary of params"""
-
-    class Config(BaseConfig):
-        arbitrary_types_allowed = True
-
-
-class AvtocodMethod(abc.ABC, BaseModel, Generic[AvtocodType]):
-    class Config(BaseConfig):
-        extra = Extra.allow
-        allow_population_by_field_name = True
-        arbitrary_types_allowed = True
-        orm_mode = True
-
-    @property
-    @abc.abstractmethod
-    def __returning__(self) -> type:
-        pass
-
-    @abc.abstractmethod
-    def build_request(self) -> Union[List[Request], Request]:
-        pass
-
-    @staticmethod
-    def check_error(parsed_data: Response[AvtocodType]) -> Response[AvtocodType]:
-        if not (error := parsed_data.error):
-            return parsed_data
-        elif error.code == 17002:
+        if error.code == 17002:
             raise NotEnoughRepairBalance("There are not enough balance")
         elif error.code == 18001:
             raise ReportNotFound("Report with this UUID not found")
@@ -96,14 +74,82 @@ class AvtocodMethod(abc.ABC, BaseModel, Generic[AvtocodType]):
             error_message = "\n".join([str(data.message) for data in wrap_as_list(error.data)])
             raise InvalidArgument(f"{error_message}")
         if error.code == -32603:
-            if data := error.data:
-                if data.code == 0:  # type: ignore
+            if data := cast(FullError, error.data):
+                if data.code == 0:
                     # if we did not authorize
                     raise SessionExpired("Session expired")
-                elif data.code == 401:  # type: ignore
+                elif data.code == 401:
                     # if login/password wrong
                     raise Unauthorized("User not authenticated")
+                raise InternalError(data.message)
         raise AvtocodException(f"Unknown error! {error.json()}")
+
+
+class JsonrpcRequest(BaseModel):
+    """Generate method to avtocod json_rpc 2.0 API."""
+
+    jsonrpc: str = "2.0"
+    """JSON-RPC version."""
+
+    id: str = Field(default_factory=generate_id("natural"))
+    """"Unique identifier for the request."""
+
+    method: str
+    """json_rpc method"""
+
+    params: Dict[str, Any] = Field(default_factory=dict)
+    """dictionary of params"""
+
+    class Config(BaseConfig):
+        arbitrary_types_allowed = True
+
+
+class Request(BaseModel):
+    data: Data
+
+    http_method: str
+    """HTTP method."""
+
+    @classmethod
+    def from_jsonrpc(
+        cls, request: Union[JsonrpcRequest, List[JsonrpcRequest]], http_method: str
+    ) -> Request:
+        http_request = cls(
+            data=request.dict()
+            if not isinstance(request, list)
+            else [request_.dict() for request_ in request],
+            http_method=http_method,
+        )
+        if http_method:
+            http_request.http_method = http_method
+        return http_request
+
+    class Config(BaseConfig):
+        arbitrary_types_allowed = True
+
+
+class AvtocodMethod(abc.ABC, BaseModel, Generic[AvtocodType]):
+    class Config(BaseConfig):
+        extra = Extra.allow
+        allow_population_by_field_name = True
+        arbitrary_types_allowed = True
+        orm_mode = True
+
+    @property
+    def http_method(self) -> str:
+        return "POST"
+
+    @property
+    @abc.abstractmethod
+    def __returning__(self) -> type:
+        pass
+
+    @abc.abstractmethod
+    def build_jsonrpc_request(self) -> JsonrpcRequest:
+        pass
+
+    def build_request(self) -> Request:
+        return Request.from_jsonrpc(self.build_jsonrpc_request(), http_method=self.http_method)
 
     def dict(self, **kwargs: Any) -> Any:
         # override dict of pydantic.BaseModel to overcome exporting exclude field
@@ -111,26 +157,24 @@ class AvtocodMethod(abc.ABC, BaseModel, Generic[AvtocodType]):
 
         return super().dict(exclude=exclude, **kwargs)
 
-    def build_response(self, data: Dict[str, Any]) -> AvtocodType:
+    def build_response(self, data: Data) -> ResponseType[AvtocodType]:
         response = Response[self.__returning__](**data)  # type: ignore
 
-        self.check_error(response)
+        response.check_error()
 
         result = cast(AvtocodType, response.result)
         parsed_by_model_json = self.on_response_parse(result)
         if parsed_by_model_json is not _sentinel:
-            return parsed_by_model_json  # type: ignore
+            return parsed_by_model_json
         return result
-
-    def build_responses_from_generator(
-        self, data_list: List[Dict[str, Any]]
-    ) -> Generator[Union[AvtocodType, AvtocodException], None, None]:
-        for data in data_list:
-            try:
-                yield self.build_response(data)
-            except AvtocodException as e:
-                yield e
 
     @classmethod
     def on_response_parse(cls, response: AvtocodType) -> Union[Any, AvtocodType]:
         return _sentinel
+
+    def __await__(self) -> Generator[Any, None, AvtocodType]:
+        """Required for manually calling method and testing"""
+        from avtocod import AvtoCod
+
+        avtocod = AvtoCod.get_current(no_error=False)
+        return avtocod(self).__await__()  # type: ignore

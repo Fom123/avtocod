@@ -4,9 +4,16 @@ on:
   push:
     branches:
       - develop
+      - develop-*
   pull_request:
     branches:
       - develop
+      - develop-*
+  workflow_dispatch:
+    branches:
+      - develop
+      - develop-*
+
 
 jobs:
   build:
@@ -61,17 +68,19 @@ jobs:
         run: |
           poetry run black --check --diff avtocod
 
-      - name: Mypy check
-        run: |
-          poetry run mypy avtocod examples
-
-      - name: Run examples # until I write auto tests:)
-        run: |
-          poetry run python examples/pipeline.py
-          poetry run python examples/disable_logging.py
-#      - name: Test with pytest
+#      - name: Mypy check
 #        run: |
-#          poetry run pytest -p no:warnings --cov=avtocod --cov-config .coveragerc --cov-report=xml
+#          poetry run mypy avtocod examples
+
+      - name: Run Tests (unit)
+        run: |
+          poetry run pytest --cov=avtocod --cov-config .coveragerc --cov-report=xml -m "not integration" --cov-append
+
+      - name: Run Tests (integration)
+        if: ${{ github.event_name == 'workflow_dispatch' }}  # only run integration tests on workflow_dispatch (not push/pull_request)
+        continue-on-error: true
+        run: |
+          poetry run pytest --cov=avtocod --cov-config .coveragerc --cov-report=xml -m "integration" --cov-append
 
       - uses: codecov/codecov-action@v1
         with:

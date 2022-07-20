@@ -1,10 +1,10 @@
 from .generation import ReviewGeneration, ReviewUpgrade
-from .identifiers import Identifiers, Vehicle
 from .query_type import QueryNumber, QueryType
-from .review import Review
-from .reviews_list import BaseStatus, Filters, Pagination, Query, ReviewList, Sort
+from .report import Report
+from .report_entities.identifiers import Identifiers, Vehicle
+from .report_entities.tech_data import TechData
+from .reports import BaseStatus, Filters, Pagination, Query, Reports, Sort
 from .short_information import ShortInformation
-from .tech_data import TechData
 
 __all__ = [
     "ReviewGeneration",
@@ -13,8 +13,8 @@ __all__ = [
     "Identifiers",
     "QueryType",
     "QueryNumber",
-    "Review",
-    "ReviewList",
+    "Report",
+    "Reports",
     "BaseStatus",
     "Query",
     "Pagination",

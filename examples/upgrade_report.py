@@ -17,10 +17,12 @@ async def main() -> None:
     created_report = await avtocod.create_report(
         "KNAFU611BA5295980", query_type="VIN"
     )  # creating the report
-    await avtocod.upgrade_report(created_report.uuid)  # upgrading report
+    await avtocod.upgrade_report(created_report.uuid)  # upgrading report_entities
 
     while True:
-        report = await avtocod.get_report(created_report.uuid)  # getting report until it's ready
+        report = await avtocod.get_report(
+            created_report.uuid
+        )  # getting the report until it's ready
         if (
             report.is_ready or report.is_completed
         ):  # checking if report is ready or completed, if yes, exit the cycle

@@ -1,7 +1,18 @@
 import functools
-from typing import Any, Dict, List, Optional, TypeVar, Union, overload
+from typing import Any, Callable, Dict, Final, Iterable, List, Optional, TypeVar, Union, overload
 
 T = TypeVar("T")
+F = TypeVar("F", bound=Callable[..., Any])
+PIPELINE_IS_SUPPORTED: Final[str] = "pipeline_support"
+
+
+def pipeline_support(f: F) -> F:
+    setattr(f, PIPELINE_IS_SUPPORTED, True)
+    return f
+
+
+def is_pipeline_supported(f: Callable[..., Any]) -> bool:
+    return getattr(f, PIPELINE_IS_SUPPORTED, False)
 
 
 @overload
@@ -19,7 +30,7 @@ def wrap_as_list(value: Union[List[T], T]) -> List[T]:
     ...
 
 
-def wrap_as_list(value: Optional[T]) -> Union[List[T], List[Any]]:
+def wrap_as_list(value: Any) -> Any:
     if value is None:
         return []
     return value if isinstance(value, list) else [value]
@@ -53,3 +64,9 @@ def filter_payload(exclude: Optional[List[str]] = None, **kwargs: Any) -> Dict[A
             dictionary[key] = value
 
     return dictionary
+
+
+def chunks(list_: List[T], n: int) -> Iterable[List[T]]:
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(list_), n):
+        yield list_[i : i + n]

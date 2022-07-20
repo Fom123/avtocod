@@ -4,19 +4,23 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any, Dict, Iterable, List, Optional, Tuple, Type, Union, cast
+import logging
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple, Type, Union, cast
 
 from aiohttp import BasicAuth, ClientError, ClientSession, TCPConnector
 
-from avtocod.exceptions import AvtocodException, NetworkError
+from avtocod.exceptions import NetworkError
 from avtocod.methods.base import AvtocodMethod, AvtocodType
-from avtocod.methods.multirequest import MultiRequest
-from avtocod.session.base import BaseSession
-from avtocod.types.base import UNSET
+from avtocod.session.base import BaseSession, ResponseType
 
 _ProxyBasic = Union[str, Tuple[str, BasicAuth]]
 _ProxyChain = Iterable[_ProxyBasic]
 _ProxyType = Union[_ProxyChain, _ProxyBasic]
+
+if TYPE_CHECKING:
+    from avtocod import AvtoCod
+
+logger = logging.getLogger(__name__)
 
 
 def _retrieve_basic(basic: _ProxyBasic) -> Dict[str, Any]:
@@ -45,14 +49,14 @@ def _retrieve_basic(basic: _ProxyBasic) -> Dict[str, Any]:
 
 
 def _prepare_connector(
-        chain_or_plain: _ProxyType,
+    chain_or_plain: _ProxyType,
 ) -> Tuple[Type[TCPConnector], Dict[str, Any]]:
     from aiohttp_socks import ChainProxyConnector, ProxyConnector, ProxyInfo  # type: ignore
 
     # since tuple is Iterable(compatible with _ProxyChain) object, we assume that
     # user wants chained proxies if tuple is a pair of string(url) and BasicAuth
     if isinstance(chain_or_plain, str) or (
-            isinstance(chain_or_plain, tuple) and len(chain_or_plain) == 2
+        isinstance(chain_or_plain, tuple) and len(chain_or_plain) == 2
     ):
         chain_or_plain = cast(_ProxyBasic, chain_or_plain)
         return ProxyConnector, _retrieve_basic(chain_or_plain)
@@ -111,38 +115,40 @@ class AiohttpSession(BaseSession):
         if self._session is not None and not self._session.closed:
             await self._session.close()
 
-    def _build_raw_data(self, request: Dict[str, Any]) -> Dict[str, Any]:
-        data = {}
-        for key, value in request.items():
-            if value is None or value is UNSET:
-                continue
-            data[key] = self.prepare_value(value)
-        return data
-
-    async def _make_request(
-            self,
-            url: str,
-            method: AvtocodMethod[AvtocodType],
-            timeout: Optional[int] = None,
-    ) -> Tuple[Union[AvtocodType, List[AvtocodType]], List[Tuple[int, AvtocodException]]]:
+    async def make_request(
+        self,
+        avtocod: AvtoCod,
+        method: AvtocodMethod[AvtocodType],
+        timeout: Optional[int] = None,
+    ) -> ResponseType[AvtocodType]:
         session = await self.create_session()
 
-        requests = self.wrap_multirequest(method, method.build_request())
+        request = method.build_request()
 
-        data = [self._build_raw_data(request.dict()) for request in requests]
+        data = self.json_dumps(self.build_data(request))
 
         try:
-            async with session.post(
-                    url,
-                    headers=self.headers,
-                    data=self.json_dumps(self.unwrap_multirequest(method, data)),
-                    timeout=self.timeout if timeout is None else timeout,
+            async with session.request(
+                method=request.http_method,
+                url=self.api,
+                headers=self.headers,
+                data=data,
+                timeout=self.timeout if timeout is None else timeout,
             ) as response:
+                logger.debug(
+                    "Making http request: %s to url %s with headers %s, data %s, timeout %s",
+                    request.http_method,
+                    self.api,
+                    self.headers,
+                    data,
+                    self.timeout,
+                )
                 raw_response = await response.text()
-                parsed_data, errors = self.check_response(
+                logger.debug("Got response: %s", raw_response)
+                response_or_responses = self.check_response(
                     method, response.content_type, raw_response
                 )
-                return parsed_data, errors
+                return response_or_responses
         except asyncio.TimeoutError:
             raise NetworkError("Request timeout error")
         except ClientError as e:

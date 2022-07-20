@@ -1,9 +1,9 @@
 import logging
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict
 from unittest.mock import sentinel
 
-from pydantic import BaseModel, Extra, Field, root_validator
+from pydantic import BaseModel, Extra, root_validator
 
 if TYPE_CHECKING:
     from avtocod.avtocod import AvtoCod
@@ -18,6 +18,9 @@ def utcformat(dt: datetime, timespec: str = "seconds") -> str:
 
 
 class AvtocodObject(BaseModel):
+    def __getitem__(self, item: Any) -> Any:  # for backwards compatibility
+        return super().__getattribute__(item)
+
     @property
     def avtocod(self) -> "AvtoCod":
         """Returning an instance of :class:`AvtoCod`"""
@@ -64,9 +67,3 @@ class MutableAvtocodObject(AvtocodObject):
 UNSET: Any = (
     sentinel.UNSET
 )  # special sentinel object which used in situation when None might be a useful value
-
-
-class DateUpdate(AvtocodObject):
-    update: Optional[datetime] = Field(
-        None, description="Дата обновления данных", examples=["2020-02-19 21:10:00"]
-    )

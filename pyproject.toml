@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "avtocod"
-version = "0.2.1"
+version = "1.0.0"
 description = "Avtocod - неофициальный, элегантный, асинхронный враппер автокода"
 license = "MIT"
 readme = "README.md"
@@ -24,25 +24,25 @@ authors = ["Fom123 <gamemode1.459@gmail.com>"]
 
 
 [tool.poetry.dependencies]
-python = ">=3.8"
-pydantic = "~=1.8.2"
+python = "^3.8"
+pydantic = "~=1.9.0"
 aiohttp = "^3.8.1"
 
 [tool.poetry.dev-dependencies]
-ipython = "^7.22.0"
-black = "^21.4b2"
+ipython = "^8.1.1"
+black = "^22.1"
 isort = "^5.8.0"
-flake8 = "^3.9.1"
+flake8 = "^4.0.1"
 flake8-html = "^0.4.1"
-mypy = "^0.910"
-pytest = "^6.2.3"
+mypy = "^0.961"
+pytest = "^7.0.1"
 pytest-html = "^3.1.1"
-pytest-asyncio = "^0.15.1"
+pytest-asyncio = "^0.18.2"
 pytest-lazy-fixture = "^0.6.3"
 pytest-mock = "^3.6.0"
-pytest-mypy = "^0.8.1"
-pytest-cov = "^2.11.1"
-pytest-aiohttp = "^0.3.0"
+pytest-mypy = "^0.9.1"
+pytest-cov = "^3.0.0"
+pytest-aiohttp = "^1.0.4"
 pre-commit = "^2.15.0"
 
 
@@ -86,4 +86,10 @@ known_third_party = [
     "pkg_resources",
     "pydantic",
     "pytest"
+]
+
+
+[tool.pytest.ini_options]
+markers = [
+    "integration: run integration tests (deselect with '-m \"not integration\"')",
 ]

@@ -1,4 +1,6 @@
-from typing import Optional
+from typing import Any, Optional
+
+from pydantic import Field
 
 from avtocod.types.base import AvtocodObject
 
@@ -14,7 +16,5 @@ class Vehicle(AvtocodObject):
 
 class Identifiers(AvtocodObject):
     vehicle: Optional[Vehicle] = None
-    _comment: Optional[str] = None
-
-
-__all__ = ["Vehicle", "Identifiers"]
+    manufacture: Any = Field(default_factory=list)
+    comment: Optional[str] = Field(None, alias="_comment")
