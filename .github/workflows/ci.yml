@@ -9,10 +9,8 @@ on:
     branches:
       - develop
       - develop-*
-  workflow_dispatch:
-    branches:
-      - develop
-      - develop-*
+  workflow_dispatch
+
 
 jobs:
   build:
@@ -76,7 +74,7 @@ jobs:
           poetry run pytest --cov=avtocod --cov-config .coveragerc --cov-report=xml -m "not integration" --cov-append
 
       - name: Run Tests (integration)
-        if: ${{ github.event_name == "workflow_dispatch" }}  # only run integration tests on workflow_dispatch (not push/pull_request)
+        if: ${{ github.event_name == 'workflow_dispatch' }}  # only run integration tests on workflow_dispatch (not push/pull_request)
         continue-on-error: true
         run: |
           poetry run pytest --cov=avtocod --cov-config .coveragerc --cov-report=xml -m "integration" --cov-append
