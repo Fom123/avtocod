@@ -66,7 +66,7 @@ def filter_payload(exclude: Optional[List[str]] = None, **kwargs: Any) -> Dict[A
     return dictionary
 
 
-def chunks(l: List[T], n: int) -> Iterable[List[T]]:
+def chunks(list_: List[T], n: int) -> Iterable[List[T]]:
     """Yield successive n-sized chunks from lst."""
-    for i in range(0, len(l), n):
-        yield l[i : i + n]
+    for i in range(0, len(list_), n):
+        yield list_[i : i + n]

@@ -3,7 +3,7 @@ import datetime
 import json
 from functools import partial
 from types import TracebackType
-from typing import TYPE_CHECKING, Any, Callable, Dict, Final, List, Optional, Type, Union, cast
+from typing import TYPE_CHECKING, Any, Callable, Dict, Final, List, Optional, Type, Union
 
 from avtocod.methods.base import (
     AvtocodMethod,
@@ -14,10 +14,9 @@ from avtocod.methods.base import (
     ResponseType,
 )
 from avtocod.types.base import UNSET, AvtocodObject, utcformat
-
+from .middlewares.base import RequestMiddlewareType
 from ..consts import AVTOCOD_API, HEADERS
 from ..exceptions import NetworkError
-from .middlewares.base import RequestMiddlewareType
 
 if TYPE_CHECKING:
     from .. import AvtoCod
