@@ -70,7 +70,7 @@ jobs:
           poetry run pytest --cov=avtocod --cov-config .coveragerc --cov-report=xml -m "not integration"
 
       - name: Run Tests (integration)
-      - run: |
+        run: |
           poetry run pytest --cov=avtocod --cov-config .coveragerc --cov-report=xml -m "integration"
 
       - uses: codecov/codecov-action@v1
