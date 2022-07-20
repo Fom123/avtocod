@@ -9,7 +9,10 @@ on:
     branches:
       - develop
       - develop-*
-  workflow_dispatch
+  workflow_dispatch:
+    branches:
+      - develop
+      - develop-*
 
 
 jobs:
