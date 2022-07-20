@@ -9,12 +9,12 @@ from typing import (
     List,
     Optional,
     Type,
-    TypeVar, TYPE_CHECKING,
+    TypeVar, TYPE_CHECKING, overload,
 )
 
 from .exceptions import ValidationError
 from .methods.authorization import AuthLogin
-from .methods.base import AvtocodMethod, AvtocodType
+from .methods.base import AvtocodMethod, AvtocodType, ResponseType
 from .methods.create_report import CreateReport
 from .methods.get_balance import GetBalance
 from .methods.get_report import GetReport
@@ -29,7 +29,7 @@ from .types.profile.profile import BalanceItem, LoginData
 from .types.report.generation import ReviewGeneration, ReviewUpgrade
 from .types.report.query_type import QueryType
 from .types.report.report import Report
-from .types.report.reports import BaseReport, Filters, Pagination, Reports, Sort
+from .types.report.reports import BaseReport, Filters, Pagination, Sort
 from .utils.utils import pipeline_support
 
 logger = logging.getLogger(__name__)
@@ -45,6 +45,7 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
     def __init__(
             self,
             token: Optional[str] = None,
+            *,
             session: Optional[BaseSession] = None,
     ):
         self._token = token
@@ -71,11 +72,27 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
             return False
         return hash(self) == hash(other)
 
+    @overload
     def __call__(
             self,
             method: AvtocodMethod[AvtocodType],
             request_timeout: Optional[int] = None,
     ) -> Awaitable[AvtocodType]:
+        ...
+
+    @overload
+    def __call__(
+            self,
+            method: Any,
+            request_timeout: Optional[int] = None,
+    ) -> Awaitable[ResponseType[AvtocodType]]:
+        ...
+
+    def __call__(
+            self,
+            method: AvtocodMethod[AvtocodType],
+            request_timeout: Optional[int] = None,
+    ) -> Awaitable[ResponseType[AvtocodType]]:
         """
         Call API method
         :param method:
@@ -159,7 +176,7 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
 
         return data
 
-    async def iter_reports_list(
+    async def iter_reports(
             self,
             sort: Optional[Sort] = None,
             filters: Optional[Filters] = None,

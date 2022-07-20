@@ -16,5 +16,5 @@ class Vehicle(AvtocodObject):
 
 class Identifiers(AvtocodObject):
     vehicle: Optional[Vehicle] = None
-    manufacture: List[Any] = Field(default_factory=list)
+    manufacture: Any = Field(default_factory=list)
     comment: Optional[str] = Field(None, alias="_comment")

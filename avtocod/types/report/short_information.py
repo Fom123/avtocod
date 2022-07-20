@@ -22,7 +22,7 @@ class ShortInformation:
     def link(self) -> str:
         return BASE_AVTOCOD_REPORT_URI + self.uuid
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.vin:
             self.vin.upper()
         if self.gos_number:

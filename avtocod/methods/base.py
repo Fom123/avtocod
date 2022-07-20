@@ -24,7 +24,7 @@ from avtocod.utils import generate_id
 from avtocod.utils.utils import wrap_as_list
 
 AvtocodType = TypeVar("AvtocodType", bound=Any)
-ResponseType = Union[Any, AvtocodType]
+ResponseType = Union[Any, AvtocodType, List[AvtocodType]]
 JsonLikeDict = Dict[str, Any]
 Data = Union[JsonLikeDict, List[JsonLikeDict]]
 

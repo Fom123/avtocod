@@ -148,7 +148,7 @@ class Report(AvtocodObject):
             photos = [photo.uri for photo in photos]
 
         return ShortInformation(
-            uuid=uuid,
+            uuid=uuid,  # type: ignore
             car_time=car_time,
             title=title,
             query_type=query_type,

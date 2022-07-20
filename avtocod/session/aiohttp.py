@@ -141,8 +141,8 @@ class AiohttpSession(BaseSession):
                 )
                 raw_response = await response.text()
                 logger.debug("Got response: %s", raw_response)
-                response = self.check_response(method, response.content_type, raw_response)
-                return response
+                response_or_responses = self.check_response(method, response.content_type, raw_response)
+                return response_or_responses
         except asyncio.TimeoutError:
             raise NetworkError("Request timeout error")
         except ClientError as e:

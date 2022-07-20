@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 from types import TracebackType
-from typing import List, Tuple, Type, Any, Dict, Optional, Union, cast, overload, Literal, Callable, Mapping
+from typing import List, Tuple, Type, Any, Optional, Union, Callable, Mapping
 
 from avtocod import AvtoCod
 from avtocod.avtocod import PipelineT
@@ -13,7 +13,8 @@ from avtocod.utils.utils import is_pipeline_supported
 
 class Pipeline:
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        self._avtocod = _AvtoCodReturnMethod(*args, **kwargs)
+        self._real_avtocod = AvtoCod(*args, **kwargs)
+        self._avtocod_to_chain = _AvtoCodReturnMethod(*args, **kwargs)
 
         self._method_stack: List[PipelineMethod] = []
 
@@ -29,7 +30,7 @@ class Pipeline:
         await self.reset()
 
     def __getattr__(self: PipelineT, item: str) -> PipelineT:
-        avtocod_attr = getattr(self._avtocod, item, lambda: None)
+        avtocod_attr = getattr(self._avtocod_to_chain, item, lambda: None)
         if not is_pipeline_supported(avtocod_attr):
             raise AttributeError(f"Cannot chain {item}!")
 
@@ -60,8 +61,8 @@ class Pipeline:
     ) -> List[Union[AvtocodType, AvtocodException]]:
 
         try:
-            responses = await self._avtocod.session(
-                self._avtocod, MultiRequest(methods=methods), timeout=request_timeout
+            responses = await self._real_avtocod(
+                method=MultiRequest(methods=methods), request_timeout=request_timeout
             )
         except PipelineException as e:
             if raise_on_error:
@@ -70,23 +71,7 @@ class Pipeline:
                 raise errors[0] from e
             return [method_and_r_or_e.result for method_and_r_or_e in e.results_and_error]
 
-        return responses
-
-    @overload
-    async def execute(
-            self,
-            raise_on_error: Literal[True] = True,
-            request_timeout: Optional[int] = None
-    ) -> List[AvtocodType]:
-        ...
-
-    @overload
-    async def execute(
-            self,
-            raise_on_error: Literal[False],
-            request_timeout: Optional[int] = None
-    ) -> List[Union[AvtocodType, AvtocodException]]:
-        ...
+        return responses  # type: ignore
 
     async def execute(
             self, raise_on_error: bool = True, request_timeout: Optional[int] = None

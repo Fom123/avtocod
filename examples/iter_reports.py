@@ -15,7 +15,7 @@ async def main() -> None:
 
     avtocod = await AvtoCod.from_credentials(email=EMAIL, password=PASSWORD)
 
-    async for report in avtocod.iter_reports_list():
+    async for report in avtocod.iter_reports():
         print(report.uuid)
 
     await avtocod.session.close()  # closing the session, so we won't have errors

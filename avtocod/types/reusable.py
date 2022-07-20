@@ -109,8 +109,8 @@ class Regions(AvtocodObject):
 
 
 class Current(AvtocodObject):
-    city: Optional[List[Any]] = None
-    region: Optional[List[Any]] = None
+    city: Optional[Any] = None
+    region: Optional[Any] = None
     yearly: Optional[Any] = None
 
 

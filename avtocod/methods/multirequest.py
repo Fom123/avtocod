@@ -1,5 +1,5 @@
 import dataclasses
-from typing import Any, List, Union, Tuple, Generic
+from typing import Any, List, Union, Generic
 
 from avtocod.exceptions import AvtocodException, PipelineException
 from avtocod.methods.base import AvtocodMethod, JsonrpcRequest, ResponseType, Data, Request, AvtocodType
