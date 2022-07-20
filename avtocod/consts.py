@@ -1,4 +1,4 @@
-from typing import Final, Dict
+from typing import Dict, Final
 
 AVTOCOD_URI: Final[str] = "https://profi.avtocod.ru/"
 AVTOCOD_API: Final[str] = "https://api-profi.avtocod.ru/rpc"

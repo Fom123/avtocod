@@ -1,7 +1,6 @@
 from typing import Optional
 
-from avtocod.types.reusable import DateUpdate
-from avtocod.types.reusable import CountItems
+from avtocod.types.reusable import CountItems, DateUpdate
 
 
 class Stealings(CountItems):

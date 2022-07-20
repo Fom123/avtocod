@@ -3,7 +3,7 @@ from typing import Any, List, Optional
 from pydantic import Field
 
 from avtocod.types import AvtocodObject
-from avtocod.types.reusable import Issued, DateUpdate
+from avtocod.types.reusable import DateUpdate, Issued
 
 
 class PhotoItemVehicle(AvtocodObject):

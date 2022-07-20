@@ -14,12 +14,17 @@ class TestCreateReport:
             result=ReviewGeneration(uuid=report.uuid, channel="avtocod", max_generation_time=60),
         )
 
-        response = await CreateReport(query=report.information.gos_number, type=report.information.query_type)
+        response = await CreateReport(
+            query=report.information.gos_number, type=report.information.query_type
+        )
         request = avtocod.get_request()
 
         assert isinstance(request.data, dict)
         assert request.data["method"] == "report.create"
-        assert request.data["params"] == {"query": report.information.gos_number, "type": report.information.query_type}
+        assert request.data["params"] == {
+            "query": report.information.gos_number,
+            "type": report.information.query_type,
+        }
         assert response == prepare_result.result
 
     async def test_avtocod_method(self, avtocod: MockedAvtoCod, report: Report) -> None:
@@ -31,13 +36,15 @@ class TestCreateReport:
         assert report.information.gos_number is not None
 
         response = await avtocod.create_report(
-            query=report.information.gos_number,
-            query_type=report.information.query_type
+            query=report.information.gos_number, query_type=report.information.query_type
         )
         request = avtocod.get_request()
 
         assert isinstance(request.data, dict)
         assert request.data["method"] == "report.create"
-        assert request.data["params"] == {"query": report.information.gos_number, "type": report.information.query_type}
+        assert request.data["params"] == {
+            "query": report.information.gos_number,
+            "type": report.information.query_type,
+        }
 
         assert response == prepare_result.result

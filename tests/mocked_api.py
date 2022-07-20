@@ -1,10 +1,9 @@
 from collections import deque
 from itertools import zip_longest
-from typing import TYPE_CHECKING, Deque, List, Optional, Tuple, Type, Any, Sequence
+from typing import TYPE_CHECKING, Any, Deque, List, Optional, Sequence, Type
 
 from avtocod import AvtoCod
-from avtocod.exceptions import AvtocodException
-from avtocod.methods import AvtocodError, AvtocodMethod, AvtocodType, JsonrpcRequest, Response
+from avtocod.methods import AvtocodError, AvtocodMethod, AvtocodType, Response
 from avtocod.methods.base import Request
 from avtocod.session.base import BaseSession, ResponseType
 from avtocod.types import UNSET
@@ -28,7 +27,7 @@ class MockedSession(BaseSession):
         self.closed = True
 
     async def make_request(
-            self, avtocod: AvtoCod, method: AvtocodMethod[AvtocodType], timeout: Optional[int] = UNSET
+        self, avtocod: AvtoCod, method: AvtocodMethod[AvtocodType], timeout: Optional[int] = UNSET
     ) -> ResponseType[AvtocodType]:
         self.closed = False
         self.requests.append(method.build_request())
@@ -38,10 +37,11 @@ class MockedSession(BaseSession):
             method=method,
             content_type="application/json",
             content=self.json_dumps(
-                response.dict() if not isinstance(response, list)
+                response.dict()
+                if not isinstance(response, list)
                 else [response_.dict() for response_ in response],
                 default=str,
-            )
+            ),
         )
         return data
 
@@ -56,12 +56,12 @@ class MockedAvtoCod(AvtoCod):
         )
 
     def add_result_for(
-            self,
-            method: Type[AvtocodMethod[AvtocodType]],
-            result: Optional[AvtocodType] = None,
-            error: Optional[AvtocodError] = None,
-            jsonrpc: str = "2.0",
-            id_: str = "",
+        self,
+        method: Type[AvtocodMethod[AvtocodType]],
+        result: Optional[AvtocodType] = None,
+        error: Optional[AvtocodError] = None,
+        jsonrpc: str = "2.0",
+        id_: str = "",
     ) -> Response[AvtocodType]:
         response = Response[method.__returning__](  # type: ignore
             jsonrpc=jsonrpc, result=result, error=error, id=id_
@@ -70,16 +70,16 @@ class MockedAvtoCod(AvtoCod):
         return response
 
     def add_batch_result_for(
-            self,
-            methods: Sequence[Type[AvtocodMethod[AvtocodType]]],
-            results: Sequence[AvtocodType],
-            errors: Sequence[AvtocodError] = (),
-            jsonrpcs: Sequence[str] = (),
-            ids: Sequence[str] = ()
+        self,
+        methods: Sequence[Type[AvtocodMethod[AvtocodType]]],
+        results: Sequence[AvtocodType],
+        errors: Sequence[AvtocodError] = (),
+        jsonrpcs: Sequence[str] = (),
+        ids: Sequence[str] = (),
     ) -> List[Response[List[AvtocodType]]]:
         responses = []
         for method, result, error, jsonrpc, id_ in zip_longest(
-                methods, results, errors, jsonrpcs, ids, fillvalue=None
+            methods, results, errors, jsonrpcs, ids, fillvalue=None
         ):
             if jsonrpc is None:
                 jsonrpc = "2.0"

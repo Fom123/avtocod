@@ -1,4 +1,4 @@
-from .base import AvtocodObject, UNSET
+from .base import UNSET, AvtocodObject
 from .profile import Balance, BalanceItem, LoginData, Token
 from .report import (
     BaseStatus,

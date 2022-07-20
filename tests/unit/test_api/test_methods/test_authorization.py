@@ -2,7 +2,7 @@ import uuid
 
 import pytest
 
-from avtocod.methods import AuthLogin, JsonrpcRequest
+from avtocod.methods import AuthLogin
 from avtocod.types import LoginData
 from tests.mocked_api import MockedAvtoCod
 

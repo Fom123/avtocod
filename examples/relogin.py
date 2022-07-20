@@ -2,7 +2,7 @@ import asyncio
 import logging
 
 from avtocod import AvtoCod
-from avtocod.session.middlewares.relogin import ReLoginMiddleware, LoginPasswordGetter
+from avtocod.session.middlewares.relogin import LoginPasswordGetter, ReLoginMiddleware
 from avtocod.session.middlewares.request_logging import RequestLogging
 
 EMAIL = "YOUR_EMAIL"
@@ -17,9 +17,7 @@ async def main() -> None:
     )  # setup logging
     avtocod = await AvtoCod.from_credentials(EMAIL, PASSWORD)  # create instance of avtocod class
 
-    avtocod.session.middleware(ReLoginMiddleware(
-        LoginPasswordGetter(EMAIL, PASSWORD)
-    ))
+    avtocod.session.middleware(ReLoginMiddleware(LoginPasswordGetter(EMAIL, PASSWORD)))
     avtocod.session.middleware(RequestLogging())
 
     while True:

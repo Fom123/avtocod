@@ -35,6 +35,3 @@ class TestGetReport:
         assert request.data["method"] == "report.get"
         assert request.data["params"] == {"uuid": report.uuid}
         assert response == prepare_result.result
-
-
-

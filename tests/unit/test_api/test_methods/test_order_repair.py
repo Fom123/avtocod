@@ -1,7 +1,7 @@
 import pytest
 
 from avtocod.methods import AdditionalUpgrade
-from avtocod.types import ReviewUpgrade, Report
+from avtocod.types import Report, ReviewUpgrade
 from tests.mocked_api import MockedAvtoCod
 
 pytestmark = pytest.mark.asyncio

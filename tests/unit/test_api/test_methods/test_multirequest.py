@@ -1,6 +1,6 @@
 import pytest
 
-from avtocod.methods import MultiRequest, GetReport, GetToken
+from avtocod.methods import GetReport, GetToken, MultiRequest
 from avtocod.types import Report, Token
 from tests.mocked_api import MockedAvtoCod
 
@@ -8,11 +8,7 @@ pytestmark = [pytest.mark.asyncio]
 
 
 class TestMultiRequest:
-    async def test_method(
-            self,
-            avtocod: MockedAvtoCod,
-            report: Report
-    ) -> None:
+    async def test_method(self, avtocod: MockedAvtoCod, report: Report) -> None:
         prepared_report_result, prepared_token_result = avtocod.add_batch_result_for(
             methods=(GetReport, GetToken),
             results=(report, Token(token="token")),
@@ -43,11 +39,10 @@ class TestMultiRequest:
         assert report_response == prepared_report_result.result
         assert token_response == prepared_token_result.result.token
 
-
     async def test_avtocod_method(
-            self,
-            avtocod: MockedAvtoCod,
-            report: Report,
+        self,
+        avtocod: MockedAvtoCod,
+        report: Report,
     ) -> None:
         prepared_report_result, prepared_token_result = avtocod.add_batch_result_for(
             methods=(GetReport, GetToken),
@@ -77,5 +72,3 @@ class TestMultiRequest:
 
         assert report_response == prepared_report_result.result
         assert token_response == prepared_token_result.result.token
-
-

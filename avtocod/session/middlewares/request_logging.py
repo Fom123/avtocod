@@ -2,9 +2,9 @@ import logging
 from collections import defaultdict
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Type
 
-from .base import BaseRequestMiddleware, NextRequestMiddlewareType
 from ...methods import AvtocodMethod, AvtocodType
 from ...methods.base import ResponseType
+from .base import BaseRequestMiddleware, NextRequestMiddlewareType
 
 if TYPE_CHECKING:
     from ...avtocod import AvtoCod

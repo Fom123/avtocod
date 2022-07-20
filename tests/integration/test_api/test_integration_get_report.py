@@ -1,7 +1,7 @@
 import pytest
 
 from avtocod import AvtoCod
-from avtocod.exceptions import ReportNotFound, NetworkError
+from avtocod.exceptions import NetworkError, ReportNotFound
 from tests.integration.conftest import uuids_
 
 pytestmark = [pytest.mark.asyncio, pytest.mark.integration]

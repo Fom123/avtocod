@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional
 from pydantic import Field
 
 from avtocod.types import AvtocodObject
-from avtocod.types.reusable import DateDate, Name, Total, DateUpdate
+from avtocod.types.reusable import DateDate, DateUpdate, Name, Total
 
 
 class Geo(AvtocodObject):

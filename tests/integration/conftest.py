@@ -24,9 +24,7 @@ def apply_context(real_avtocod: AvtoCod) -> None:
 @pytest.fixture(scope="session")
 async def real_avtocod() -> AvtoCod:
     if settings.AVTOCOD_EMAIL and settings.AVTOCOD_PASSWORD:
-        avtocod = await AvtoCod.from_credentials(
-            settings.AVTOCOD_EMAIL, settings.AVTOCOD_PASSWORD
-        )
+        avtocod = await AvtoCod.from_credentials(settings.AVTOCOD_EMAIL, settings.AVTOCOD_PASSWORD)
     elif settings.AVTOCOD_TOKEN:
         avtocod = AvtoCod(settings.AVTOCOD_TOKEN)
     else:

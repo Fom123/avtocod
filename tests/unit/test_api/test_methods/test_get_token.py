@@ -9,7 +9,7 @@ pytestmark = pytest.mark.asyncio
 
 class TestGetToken:
     async def test_method(self, avtocod: MockedAvtoCod) -> None:
-        prepare_result = avtocod.add_result_for( # type: ignore
+        prepare_result = avtocod.add_result_for(  # type: ignore
             GetToken,
             result=Token(token="token"),
         )
@@ -24,7 +24,7 @@ class TestGetToken:
         assert response == prepare_result.result.token  # it should return str, not the Token
 
     async def test_avtocod_method(self, avtocod: MockedAvtoCod) -> None:
-        prepare_result = avtocod.add_result_for( # type: ignore
+        prepare_result = avtocod.add_result_for(  # type: ignore
             GetToken,
             result=Token(token="token"),
         )

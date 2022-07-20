@@ -2,8 +2,8 @@ import uuid
 
 import pytest
 
-from avtocod.methods import AuthLogin, JsonrpcRequest
-from avtocod.types import LoginData, Report
+from avtocod.methods import AuthLogin
+from avtocod.types import LoginData
 from tests.mocked_api import MockedAvtoCod
 
 pytestmark = pytest.mark.asyncio

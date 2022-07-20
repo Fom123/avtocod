@@ -23,7 +23,7 @@ from avtocod.types.report.report_entities.tech_data import TechData
 from avtocod.types.report.report_entities.utilization import Utilizations
 from avtocod.types.report.short_information import ShortInformation
 from avtocod.types.reusable import CountItems
-from avtocod.utils.utils import filter_payload, rgetattr
+from avtocod.utils.utils import rgetattr
 
 
 class ContentData(AvtocodObject):
@@ -155,7 +155,8 @@ class Report(AvtocodObject):
             gos_number=gos_number,
             vin=vin,
             photos=photos,
-            logotype=logotype
+            logotype=logotype,
         )  # unpack all the filtered variables
+
 
 # __all__ = ["Review"] # cuz I don't want to export all types in tests

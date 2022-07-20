@@ -10,10 +10,7 @@ def generate_id(type_: str, /) -> Any:
     :return:
     """
 
-    fabric = {
-        "uuid": generate_next_uuid(),
-        "natural": generate_next_id()
-    }
+    fabric = {"uuid": generate_next_uuid(), "natural": generate_next_id()}
 
     def wrapper() -> Any:
         choice = fabric[type_.casefold()]

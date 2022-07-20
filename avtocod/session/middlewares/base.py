@@ -1,9 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Awaitable, Callable, Union
 
-from ...methods import AvtocodMethod, AvtocodType, Response
+from ...methods import AvtocodMethod, AvtocodType
 from ...methods.base import ResponseType
-from ...types import AvtocodObject
 
 if TYPE_CHECKING:
     from ...avtocod import AvtoCod

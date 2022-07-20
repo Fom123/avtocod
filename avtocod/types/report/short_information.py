@@ -1,5 +1,5 @@
 import dataclasses
-from typing import Optional, List, TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Optional
 
 if TYPE_CHECKING:
     from avtocod.types import QueryType
@@ -27,5 +27,6 @@ class ShortInformation:
             self.vin.upper()
         if self.gos_number:
             self.gos_number.upper()
+
 
 __all__ = ["ShortInformation"]

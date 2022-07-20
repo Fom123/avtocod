@@ -6,6 +6,7 @@ from tests.mocked_api import MockedAvtoCod
 
 pytestmark = pytest.mark.asyncio
 
+
 class TestUpgradeReport:
     async def test_method(self, avtocod: MockedAvtoCod, report: Report) -> None:
         prepare_result = avtocod.add_result_for(
@@ -29,7 +30,6 @@ class TestUpgradeReport:
 
         response = await avtocod.upgrade_report(uuid=report.uuid)
         request = avtocod.get_request()
-
 
         assert isinstance(request.data, dict)
         assert request.data["method"] == "report.upgrade"

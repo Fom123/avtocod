@@ -4,7 +4,11 @@ from avtocod import AvtoCod
 from avtocod.types.report.reports import BaseReport
 from tests.settings import NOT_AUTHORIZED
 
-pytestmark = [pytest.mark.asyncio, pytest.mark.integration, pytest.mark.skipif(NOT_AUTHORIZED, reason="Not authorized")]
+pytestmark = [
+    pytest.mark.asyncio,
+    pytest.mark.integration,
+    pytest.mark.skipif(NOT_AUTHORIZED, reason="Not authorized"),
+]
 
 
 async def test_integration_get_reports(real_avtocod: AvtoCod) -> None:

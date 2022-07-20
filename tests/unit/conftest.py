@@ -12,5 +12,3 @@ def avtocod() -> MockedAvtoCod:
         yield avtocod
     finally:
         AvtoCod.reset_current(token)
-
-

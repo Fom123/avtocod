@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 from types import TracebackType
-from typing import List, Tuple, Type, Any, Optional, Union, Callable, Mapping
+from typing import Any, Callable, List, Mapping, Optional, Tuple, Type, Union
 
 from avtocod import AvtoCod
 from avtocod.avtocod import PipelineT
@@ -22,10 +22,10 @@ class Pipeline:
         return self
 
     async def __aexit__(
-            self,
-            exc_type: Optional[Type[BaseException]],
-            exc_value: Optional[BaseException],
-            traceback: Optional[TracebackType],
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
     ) -> None:
         await self.reset()
 
@@ -54,10 +54,10 @@ class Pipeline:
         self._method_stack = []
 
     async def _execute_transaction(
-            self,
-            methods: List[AvtocodMethod[AvtocodType]],
-            raise_on_error: bool = False,
-            request_timeout: Optional[int] = None,
+        self,
+        methods: List[AvtocodMethod[AvtocodType]],
+        raise_on_error: bool = False,
+        request_timeout: Optional[int] = None,
     ) -> List[Union[AvtocodType, AvtocodException]]:
 
         try:
@@ -66,15 +66,16 @@ class Pipeline:
             )
         except PipelineException as e:
             if raise_on_error:
-                errors = [r.result for r in e.results_and_error
-                          if isinstance(r.result, AvtocodException)]
+                errors = [
+                    r.result for r in e.results_and_error if isinstance(r.result, AvtocodException)
+                ]
                 raise errors[0] from e
             return [method_and_r_or_e.result for method_and_r_or_e in e.results_and_error]
 
         return responses  # type: ignore
 
     async def execute(
-            self, raise_on_error: bool = True, request_timeout: Optional[int] = None
+        self, raise_on_error: bool = True, request_timeout: Optional[int] = None
     ) -> List[Union[AvtocodType, AvtocodException]]:
         if not self._method_stack:
             raise AttributeError("No method to execute!")
@@ -84,14 +85,11 @@ class Pipeline:
             if not method.method_callable:
                 raise AttributeError("You must call a method before calling execute!")
             if all([arg is None for arg in (method.args, method.kwargs)]):
-                raise AttributeError("You must call a method with args or kwargs before calling execute!")
-
-            methods.append(
-                method.method_callable(
-                    *method.args,
-                    **method.kwargs
+                raise AttributeError(
+                    "You must call a method with args or kwargs before calling execute!"
                 )
-            )
+
+            methods.append(method.method_callable(*method.args, **method.kwargs))
 
         return await self._execute_transaction(methods, raise_on_error, request_timeout)
 
@@ -105,8 +103,8 @@ class PipelineMethod:
 
 class _AvtoCodReturnMethod(AvtoCod):
     def __call__(
-            self,
-            method: AvtocodMethod[AvtocodType],
-            request_timeout: Optional[int] = None,
+        self,
+        method: AvtocodMethod[AvtocodType],
+        request_timeout: Optional[int] = None,
     ) -> AvtocodMethod[AvtocodType]:
         return method

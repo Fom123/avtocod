@@ -8,12 +8,13 @@ from avtocod.types.report.report_entities.tech_data import Engine
 from avtocod.types.reusable import (
     Count,
     DatePublish,
+    DateUpdate,
     MaxMin,
     Name,
     PositionAndPositionId,
     PriceWithRegion,
     TypeA,
-    TypeAndTypeId, DateUpdate,
+    TypeAndTypeId,
 )
 
 

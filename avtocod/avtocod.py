@@ -3,13 +3,15 @@ from __future__ import annotations
 import asyncio
 import logging
 from typing import (
+    TYPE_CHECKING,
     Any,
     AsyncGenerator,
     Awaitable,
     List,
     Optional,
     Type,
-    TypeVar, TYPE_CHECKING, overload,
+    TypeVar,
+    overload,
 )
 
 from .exceptions import ValidationError
@@ -43,10 +45,10 @@ if TYPE_CHECKING:
 
 class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
     def __init__(
-            self,
-            token: Optional[str] = None,
-            *,
-            session: Optional[BaseSession] = None,
+        self,
+        token: Optional[str] = None,
+        *,
+        session: Optional[BaseSession] = None,
     ):
         self._token = token
         self.session = session if session is not None else AiohttpSession()
@@ -74,24 +76,24 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
 
     @overload
     def __call__(
-            self,
-            method: AvtocodMethod[AvtocodType],
-            request_timeout: Optional[int] = None,
+        self,
+        method: AvtocodMethod[AvtocodType],
+        request_timeout: Optional[int] = None,
     ) -> Awaitable[AvtocodType]:
         ...
 
     @overload
     def __call__(
-            self,
-            method: Any,
-            request_timeout: Optional[int] = None,
+        self,
+        method: Any,
+        request_timeout: Optional[int] = None,
     ) -> Awaitable[ResponseType[AvtocodType]]:
         ...
 
     def __call__(
-            self,
-            method: AvtocodMethod[AvtocodType],
-            request_timeout: Optional[int] = None,
+        self,
+        method: AvtocodMethod[AvtocodType],
+        request_timeout: Optional[int] = None,
     ) -> Awaitable[ResponseType[AvtocodType]]:
         """
         Call API method
@@ -123,16 +125,17 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
         later execution.
         """
         from .pipeline import Pipeline
+
         return Pipeline(session=self.session, token=self.token)
 
     @classmethod
     async def from_credentials(
-            cls: Type[AvtoCodT],
-            email: str,
-            password: str,
-            request_timeout: Optional[int] = None,
-            *args: Any,
-            **kwargs: Any,
+        cls: Type[AvtoCodT],
+        email: str,
+        password: str,
+        request_timeout: Optional[int] = None,
+        *args: Any,
+        **kwargs: Any,
     ) -> AvtoCodT:
         """Method for creating avtocod instance from credentials
 
@@ -150,14 +153,11 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
         login_data = await avtocod.login(email, password, request_timeout=request_timeout)
 
         return cls(
-            login_data.token,
-            session=kwargs.pop("session", avtocod.session),
-            *args,
-            **kwargs
+            login_data.token, session=kwargs.pop("session", avtocod.session), *args, **kwargs
         )
 
     async def login(
-            self, email: str, password: str, request_timeout: Optional[int] = None
+        self, email: str, password: str, request_timeout: Optional[int] = None
     ) -> LoginData:
         """
         Login in avtocod account using credentials
@@ -177,12 +177,12 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
         return data
 
     async def iter_reports(
-            self,
-            sort: Optional[Sort] = None,
-            filters: Optional[Filters] = None,
-            limit: int = 0,
-            delay_between_request: int = 5,
-            request_timeout: Optional[int] = None,
+        self,
+        sort: Optional[Sort] = None,
+        filters: Optional[Filters] = None,
+        limit: int = 0,
+        delay_between_request: int = 5,
+        request_timeout: Optional[int] = None,
     ) -> AsyncGenerator[BaseReport, None]:
         """
         Iterate over all reports in avtocod account
@@ -228,7 +228,7 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
 
     @pipeline_support
     def create_report(
-            self, query: str, query_type: QueryType, request_timeout: Optional[int] = None
+        self, query: str, query_type: QueryType, request_timeout: Optional[int] = None
     ) -> Awaitable[ReviewGeneration]:
         """
         Method to create report
@@ -257,7 +257,7 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
 
     @pipeline_support
     def upgrade_report(
-            self, uuid: str, request_timeout: Optional[int] = None
+        self, uuid: str, request_timeout: Optional[int] = None
     ) -> Awaitable[ReviewUpgrade]:
         """Upgrade the report to the full version
 
@@ -272,11 +272,11 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
 
     @pipeline_support
     def get_reports(
-            self,
-            pagination: Optional[Pagination] = None,
-            sort: Optional[Sort] = None,
-            filters: Optional[Filters] = None,
-            request_timeout: Optional[int] = None,
+        self,
+        pagination: Optional[Pagination] = None,
+        sort: Optional[Sort] = None,
+        filters: Optional[Filters] = None,
+        request_timeout: Optional[int] = None,
     ) -> Awaitable[List[BaseReport]]:
         """
         Get the list of reports, if pagination weren't set,
@@ -294,7 +294,7 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
 
     @pipeline_support
     def get_account_info(
-            self, request_timeout: Optional[int] = None
+        self, request_timeout: Optional[int] = None
     ) -> Awaitable[List[BalanceItem]]:
         """
         Get the account info, can be used without authorization.
@@ -308,7 +308,7 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
 
     @pipeline_support
     def upgrade_review_repair(
-            self, uuid: str, product_uuid: str, request_timeout: Optional[int] = None
+        self, uuid: str, product_uuid: str, request_timeout: Optional[int] = None
     ) -> Awaitable[ReviewUpgrade]:
         """Order the repair of the report
 

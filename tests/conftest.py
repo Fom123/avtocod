@@ -25,8 +25,7 @@ from avtocod.types.reusable import *
 from tests import settings
 from tests.mocked_api import MockedAvtoCod
 
-import datetime
-
+import datetime  # have to import it here
 
 @pytest.fixture(scope="function")
 def report():

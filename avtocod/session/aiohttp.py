@@ -137,11 +137,17 @@ class AiohttpSession(BaseSession):
             ) as response:
                 logger.debug(
                     "Making http request: %s to url %s with headers %s, data %s, timeout %s",
-                    request.http_method, self.api, self.headers, data, self.timeout
+                    request.http_method,
+                    self.api,
+                    self.headers,
+                    data,
+                    self.timeout,
                 )
                 raw_response = await response.text()
                 logger.debug("Got response: %s", raw_response)
-                response_or_responses = self.check_response(method, response.content_type, raw_response)
+                response_or_responses = self.check_response(
+                    method, response.content_type, raw_response
+                )
                 return response_or_responses
         except asyncio.TimeoutError:
             raise NetworkError("Request timeout error")

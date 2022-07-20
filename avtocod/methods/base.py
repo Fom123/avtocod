@@ -112,14 +112,13 @@ class Request(BaseModel):
 
     @classmethod
     def from_jsonrpc(
-            cls,
-            request: Union[JsonrpcRequest, List[JsonrpcRequest]],
-            http_method: str) -> Request:
+        cls, request: Union[JsonrpcRequest, List[JsonrpcRequest]], http_method: str
+    ) -> Request:
         http_request = cls(
             data=request.dict()
             if not isinstance(request, list)
             else [request_.dict() for request_ in request],
-            http_method=http_method
+            http_method=http_method,
         )
         if http_method:
             http_request.http_method = http_method
@@ -150,10 +149,7 @@ class AvtocodMethod(abc.ABC, BaseModel, Generic[AvtocodType]):
         pass
 
     def build_request(self) -> Request:
-        return Request.from_jsonrpc(
-            self.build_jsonrpc_request(),
-            http_method=self.http_method
-        )
+        return Request.from_jsonrpc(self.build_jsonrpc_request(), http_method=self.http_method)
 
     def dict(self, **kwargs: Any) -> Any:
         # override dict of pydantic.BaseModel to overcome exporting exclude field

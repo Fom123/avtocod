@@ -1,10 +1,8 @@
-import re
-from typing import Callable, Iterator, Any
 from uuid import UUID
 
 import pytest
 
-from avtocod.utils import generate_next_id, generate_next_uuid, generate_id
+from avtocod.utils import generate_id, generate_next_id, generate_next_uuid
 
 
 def test_natural_iterator() -> None:
