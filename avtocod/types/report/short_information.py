@@ -1,5 +1,6 @@
 import dataclasses
 from typing import TYPE_CHECKING, List, Optional
+from urllib.parse import urljoin
 
 if TYPE_CHECKING:
     from avtocod.types import QueryType
@@ -20,7 +21,9 @@ class ShortInformation:
 
     @property
     def link(self) -> str:
-        return BASE_AVTOCOD_REPORT_URI + self.uuid
+        return urljoin(
+            BASE_AVTOCOD_REPORT_URI, self.uuid
+        )
 
     def __post_init__(self) -> None:
         if self.vin:
