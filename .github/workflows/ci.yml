@@ -10,9 +10,6 @@ on:
       - develop
       - develop-*
   workflow_dispatch:
-    branches:
-      - develop
-      - develop-*
 
 
 jobs:
