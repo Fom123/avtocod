@@ -126,7 +126,7 @@ class AvtoCod(ContextInstanceMixin["AvtoCod"], DataMixin):
         """
         from .pipeline import Pipeline
 
-        return Pipeline(session=self.session, token=self.token)
+        return Pipeline(self)
 
     @classmethod
     async def from_credentials(

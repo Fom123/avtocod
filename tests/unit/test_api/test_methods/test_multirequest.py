@@ -50,9 +50,19 @@ class TestMultiRequest:
         )
 
         async with avtocod.pipeline() as pipe:
-            pipe.get_report(report.uuid)
-            pipe.get_token()
+            pipe.get_report(report.uuid).get_token()
+
+            assert len(pipe) == 2
+
             responses = await pipe.execute()
+
+            assert len(pipe) == 0
+
+            pipe.get_report(report.uuid).get_token().get_token()
+
+            assert len(pipe) == 3
+
+        assert len(pipe) == 0
 
         request = avtocod.get_request()
 
