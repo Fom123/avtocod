@@ -14,9 +14,10 @@ from avtocod.methods.base import (
     ResponseType,
 )
 from avtocod.types.base import UNSET, AvtocodObject, utcformat
-from .middlewares.base import RequestMiddlewareType
+
 from ..consts import AVTOCOD_API, HEADERS
 from ..exceptions import NetworkError
+from .middlewares.base import RequestMiddlewareType
 
 if TYPE_CHECKING:
     from .. import AvtoCod

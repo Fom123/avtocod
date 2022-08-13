@@ -21,9 +21,7 @@ class ShortInformation:
 
     @property
     def link(self) -> str:
-        return urljoin(
-            BASE_AVTOCOD_REPORT_URI, self.uuid
-        )
+        return urljoin(BASE_AVTOCOD_REPORT_URI, self.uuid)
 
     def __post_init__(self) -> None:
         if self.vin:

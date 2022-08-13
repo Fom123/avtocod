@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from types import TracebackType
-from typing import Any, List, Optional, Type, Union, Awaitable, TypeVar, Callable
+from typing import Any, Awaitable, Callable, List, Optional, Type, TypeVar, Union
 
 from avtocod import AvtoCod
 from avtocod.avtocod import PipelineT
@@ -21,10 +21,10 @@ class Pipeline:
         return self
 
     async def __aexit__(
-            self,
-            exc_type: Optional[Type[BaseException]],
-            exc_value: Optional[BaseException],
-            traceback: Optional[TracebackType],
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
     ) -> None:
         self.reset()
 
@@ -32,15 +32,12 @@ class Pipeline:
         """We are overriding call on avtocod to get a method and push it to the stack"""
 
         def push_to_stack(
-                method: AvtocodMethod[AvtocodType],
-                request_timeout: Optional[int] = None,
+            method: AvtocodMethod[AvtocodType],
+            request_timeout: Optional[int] = None,
         ) -> None:
             self.method_stack.append(method)
 
-        def wrapper(
-                *args: Any,
-                **kwargs: Any
-        ) -> PipelineT:
+        def wrapper(*args: Any, **kwargs: Any) -> PipelineT:
             function_that_call_avtocod = getattr(AvtoCod, item)  # get the function from avtocod
             if not is_pipeline_supported(function_that_call_avtocod):
                 raise AttributeError(f"{item} is not supported in pipeline")
@@ -62,10 +59,10 @@ class Pipeline:
         self.method_stack = []
 
     async def _execute_transaction(
-            self,
-            methods: List[AvtocodMethod[AvtocodType]],
-            raise_on_error: bool = False,
-            request_timeout: Optional[int] = None,
+        self,
+        methods: List[AvtocodMethod[AvtocodType]],
+        raise_on_error: bool = False,
+        request_timeout: Optional[int] = None,
     ) -> List[Union[AvtocodType, AvtocodException]]:
 
         try:
@@ -83,16 +80,12 @@ class Pipeline:
         return responses  # type: ignore
 
     def execute(
-            self, raise_on_error: bool = True, request_timeout: Optional[int] = None
+        self, raise_on_error: bool = True, request_timeout: Optional[int] = None
     ) -> Awaitable[List[Union[AvtocodType, AvtocodException]]]:
         if not self.method_stack:
             raise AttributeError("No method to execute!")
 
         try:
-            return self._execute_transaction(
-                self.method_stack,
-                raise_on_error,
-                request_timeout
-            )
+            return self._execute_transaction(self.method_stack, raise_on_error, request_timeout)
         finally:
             self.reset()
