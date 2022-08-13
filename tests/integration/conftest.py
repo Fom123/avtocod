@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import List
 
 import pytest
+import pytest_asyncio
 
 from avtocod import AvtoCod
 from tests import settings
@@ -21,7 +22,10 @@ def apply_context(real_avtocod: AvtoCod) -> None:
         AvtoCod.reset_current(token)
 
 
-@pytest.fixture(scope="session")
+# pytest asyncio fixture, cuz strict mode is enabled by default
+# https://github.com/pytest-dev/pytest-asyncio/tree/07beb804a9c934862e0770bf51beb30b7e5a4230#strict-mode
+# https://github.com/pytest-dev/pytest-asyncio/issues/390
+@pytest_asyncio.fixture(scope="session")
 async def real_avtocod() -> AvtoCod:
     if settings.AVTOCOD_EMAIL and settings.AVTOCOD_PASSWORD:
         avtocod = await AvtoCod.from_credentials(settings.AVTOCOD_EMAIL, settings.AVTOCOD_PASSWORD)
