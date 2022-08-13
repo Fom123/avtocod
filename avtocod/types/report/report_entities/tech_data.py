@@ -142,4 +142,4 @@ class TechData(AvtocodObject):
     comment: Optional[str] = Field(None, alias="_comment")
 
 
-#  __all__ = ["TechData"]  # cuz I don't want to export all types in tests
+__all__ = ["TechData"]

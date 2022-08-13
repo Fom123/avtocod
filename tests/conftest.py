@@ -1,31 +1,114 @@
-import datetime  # have to import it here
+import datetime
 
 import pytest
 
-# TODO normal imports here, not that pieces of shit
-# пиздец да
-from avtocod.avtocod import AvtoCod
-from avtocod.types.base import *
-from avtocod.types.report.report import *
-from avtocod.types.report.report_entities.accidents import *
-from avtocod.types.report.report_entities.additional_info import *
-from avtocod.types.report.report_entities.calculate import *
-from avtocod.types.report.report_entities.fines import *
-from avtocod.types.report.report_entities.identifiers import *
-from avtocod.types.report.report_entities.market_price import *
-from avtocod.types.report.report_entities.metadata import *
-from avtocod.types.report.report_entities.mileages import *
-from avtocod.types.report.report_entities.owner import *
-from avtocod.types.report.report_entities.photos import *
-from avtocod.types.report.report_entities.query import *
-from avtocod.types.report.report_entities.registration_actions import *
-from avtocod.types.report.report_entities.state import *
-from avtocod.types.report.report_entities.stealings import *
-from avtocod.types.report.report_entities.tech_data import *
-from avtocod.types.report.report_entities.utilization import *
-from avtocod.types.reusable import *
-from tests import settings
-from tests.mocked_api import MockedAvtoCod
+from avtocod.types import Identifiers, Report, TechData, Vehicle
+from avtocod.types.report.report import Content, ContentData
+from avtocod.types.report.report_entities.accidents import (
+    Accidents,
+    Geo,
+    ItemsOfPledges,
+    ItemVehicle,
+    Pledges,
+)
+from avtocod.types.report.report_entities.additional_info import (
+    AdditionalInfo,
+    Category,
+    DatePassport,
+    GeoOwner,
+    IdentifiersInfo,
+    Modifications,
+    OwnerInfo,
+    Passport,
+    Segment,
+    VehicleInfo,
+)
+from avtocod.types.report.report_entities.calculate import Calculate, Coefficients, Osago, Tax
+from avtocod.types.report.report_entities.fines import (
+    Article,
+    Bank,
+    Fines,
+    FinesItems,
+    Fssp,
+    Location,
+    Number,
+    Payment,
+    User,
+    Wire,
+)
+from avtocod.types.report.report_entities.gots_action import GotsAuctions
+from avtocod.types.report.report_entities.last_generation_stat import LastGenerationStat
+from avtocod.types.report.report_entities.market_price import (
+    Ads,
+    AdsItem,
+    GeoAd,
+    MarketPrices,
+    RelatedAd,
+    VehicleAd,
+)
+from avtocod.types.report.report_entities.metadata import Application, Metadata
+from avtocod.types.report.report_entities.mileages import Actuality, FilledBy, Item, Mileages
+from avtocod.types.report.report_entities.owner import (
+    HistoryOwnership,
+    ItemHistory,
+    LastOperation,
+    OwnerHistory,
+    Ownership,
+)
+from avtocod.types.report.report_entities.photos import (
+    Images,
+    PhotoItemVehicle,
+    Photos,
+    PhotosItem,
+)
+from avtocod.types.report.report_entities.query import Query
+from avtocod.types.report.report_entities.state import Source, State
+from avtocod.types.report.report_entities.stealings import Stealings
+from avtocod.types.report.report_entities.tech_data import (
+    Bodies,
+    BodiesModification,
+    Body,
+    Brand,
+    Chassis,
+    Color,
+    Drive,
+    Engine,
+    Fuel,
+    Generations,
+    Logotype,
+    Model,
+    OriginalNormalizedName,
+    Power,
+    Standarts,
+    Transmission,
+    Type,
+    Weight,
+    Wheel,
+)
+from avtocod.types.report.report_entities.utilization import Utilizations
+from avtocod.types.reusable import (
+    Count,
+    CountItems,
+    Current,
+    DateDate,
+    DateEnd,
+    DateEndPercent,
+    DateEvent,
+    DatePublish,
+    DateStartEnd,
+    DateUpdate,
+    Issued,
+    MaxMin,
+    Name,
+    PositionAndPositionId,
+    PriceWithRegion,
+    Regions,
+    StartEnd,
+    Total,
+    TypeA,
+    TypeAndTypeId,
+    Value,
+)
 
 
 @pytest.fixture(scope="function")
