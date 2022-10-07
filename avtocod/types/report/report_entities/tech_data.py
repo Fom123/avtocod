@@ -16,7 +16,7 @@ class Logotype(AvtocodObject):
 
 
 class Standarts(AvtocodObject):
-    emission: Optional[List[Any]] = None
+    emission: Optional[Any] = None
 
 
 class Chassis(AvtocodObject):
